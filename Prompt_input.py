@@ -28,7 +28,7 @@ def listener():
             try: # 1st listen attempt
                 prompt = recognizer.listen(source, timeout=3)
             except sr.WaitTimeoutError: 
-                print(f'{error_log['ERROR1']}, did you say something?')
+                print(f"{error_log['ERROR1']}, did you say something?")
                 try: # low amplitude failsafe
                     listener_check_audio = recognizer.listen(source, timeout=3)
                     listener_check_text = transcriber(listener_check_audio)
