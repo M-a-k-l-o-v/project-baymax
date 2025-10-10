@@ -15,6 +15,10 @@ temperature
 weather
 
 ## package requirements
+install portaudio
+    brew install portaudio
+    pip install pyaudio
 open AI whisper
-Olllama
-Python speech_recognition package
+wit.ai
+Ollama - pip install llama
+Pip3 install SpeechRecognition 
