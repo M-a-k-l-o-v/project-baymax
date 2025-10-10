@@ -1,8 +1,27 @@
+import requests
+
+
 
 # tools
+
+
+
 def get_location():
-    return True
-def get_weather():
+    try:
+        ip_info = requests.get("https://ipapi.co/json/").json() 
+        # this returns a dictionary with network based location so vpn would switch
+        # things up, try using device hardware location later.
+        
+        city = ip_info.get("city")
+        country = ip_info.get("country_name")
+        print([city, country])
+        return [city, country]
+    except Exception as e:
+        print("Error getting location:", e)
+        return None
+    
+def get_weather(city, country):
+
     return True
 def get_time():
     return True
@@ -14,3 +33,5 @@ TOOLS = {
 
     
 }
+
+get_location()

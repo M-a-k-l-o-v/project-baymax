@@ -18,7 +18,7 @@ weather
 install portaudio
     brew install portaudio
     pip install pyaudio
-open AI whisper
+open AI whisper - not done yet
 wit.ai
 Ollama - pip install llama
 Pip3 install SpeechRecognition 
