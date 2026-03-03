@@ -6,5 +6,6 @@ if __name__ == "__main__":
 
     print('welcome')
     prompt = transcriber(listener())
+    lam_reasoning(prompt)
     print(prompt)
 

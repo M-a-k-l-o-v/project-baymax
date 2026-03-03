@@ -1,6 +1,6 @@
 import ollama, json
 from API_and_tools import *
-MODEL = "llama"
+MODEL = "gemma3:4b"
 
 def lam_reasoning(prompt):
     response = ollama.chat(
