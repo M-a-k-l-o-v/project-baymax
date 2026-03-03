@@ -1,0 +1,20 @@
+required packages
+- open3d 
+  - requires
+      - python 3.11
+- numpy
+- torch
+  - image model dependency MiDaS
+    - timm (pip install timm)
+    - midas' transform assumes a normalised numpy data type for the current verrsions, so u have to manually change pil image data type to normalised (0,1) numpy array
+- cv2
+
+| Library             | Role                                                                                          |
+| ------------------- | --------------------------------------------------------------------------------------------- |
+| **cv2 (OpenCV)**    | Handles camera input and image manipulation.                                                  |
+| **torch (PyTorch)** | Runs the MiDaS neural network for depth prediction.                                           |
+| **numpy**           | Handles numerical math, grids, and array reshaping.                                           |
+| **open3d**          | Used to represent and visualize 3D geometry (point clouds, meshes).                           |
+| **PIL (Pillow)**    | Simplifies image conversions (used to convert OpenCV frames into the format PyTorch expects). |
+
+the computational power required to run my goal is not availiable, so a sugested downscale is to have a static render that recaptures say every 10 seconds and added any new object to the space 
