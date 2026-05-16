@@ -43,3 +43,10 @@ htmlcov/
 .env
 .env.*
 !.env.example
+
+# Personal / non-shareable career docs (kept locally only)
+tadashi CV (GOALS).pdf
+
+# Local markdown / Quarto preview artifacts (any depth)
+*.html
+*_files/

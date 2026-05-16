@@ -1,259 +1,125 @@
 # BAYMAX
 
-Last updated: March 3, 2026
+A locally-hostable personal-task agent, evaluated on a reproducible benchmark of scripted productivity scenarios. Built to AI Systems flagship standards — train + eval + deploy pipeline, real metrics, defensible under interview questioning.
 
-## What BAYMAX Currently Is
+**Status:** pre-Phase 0 (week of 2026-05-18). Repo is being restructured from its prior multi-prototype form. See [docs/ROADMAP.md](docs/ROADMAP.md) for phase plan.
 
-BAYMAX is currently a multi-project workspace with three active prototypes:
+---
 
-1. A Notion-backed task/reminder automation stack (`task manager/`)
-2. A voice assistant experiment using speech recognition + local LLMs (`voice Interactive chat bot/`)
-3. A manual webcam-to-3D reconstruction experiment (`Virtual_space_constructor/`)
+## What this is
 
-This repository is not yet a single polished product. It is a working R&D workspace with multiple modules at different maturity levels.
+A single-process agent that:
 
-## Workspace Layout
+1. Accepts voice or text input describing a productivity task
+2. Selects and executes a sequence of tool calls against Notion, Google Calendar, Gmail, and the system clipboard
+3. Confirms or requests clarification
+4. Logs every action with a trace ID
 
-```text
+The defining property of the project is the **eval suite**, not the agent itself: ≥100 scripted scenarios with measured task success rate, tool-call accuracy, hallucination rate, latency P50/P99, and cost per task. Every claim is reproducible from the repo.
+
+## What this is not
+
+- Not a "general personal assistant"
+- Not a multi-agent orchestration framework
+- Not a thin wrapper around GPT-4 — the v1 deliverable includes a fine-tuned local model deployed via MLX
+- Not benchmarked only against itself
+
+For the full anti-claims list and the research question this project answers, see [docs/PROBLEM.md](docs/PROBLEM.md).
+
+---
+
+## Team
+
+| Name | Role | Owned modules |
+|---|---|---|
+| Marv | Person 1 | Agent core · Inference service · Telemetry |
+| Ronin | Person 2 | Eval harness · Training pipeline · Tool adapters |
+
+Authoritative ownership rules and PR review protocol: [docs/OWNERSHIP.md](docs/OWNERSHIP.md).
+
+---
+
+## Documentation
+
+| Doc | Purpose |
+|---|---|
+| [docs/PROBLEM.md](docs/PROBLEM.md) | What we're building and why; v1/v2 done criteria |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design (scaffold with TODO blocks — owners fill in) |
+| [docs/OWNERSHIP.md](docs/OWNERSHIP.md) | Module ownership, PR rules, conflict resolution |
+| [docs/ROADMAP.md](docs/ROADMAP.md) | 4-phase plan, 19 weeks, weekly milestones |
+| [docs/decisions/](docs/decisions/) | ADRs (Architecture Decision Records) — one per significant choice |
+| [docs/BENCHMARKING.md](docs/BENCHMARKING.md) | Eval methodology and result tables (added in Phase 1) |
+| [future_work/](future_work/) | Briefs for re-scopings considered and parked (Options β and γ) |
+
+---
+
+## Target repo layout
+
+This is the structure being established in Phase 0. The current state on disk differs — see ROADMAP Phase 0 for the migration plan.
+
+```
 BAYMAX/
-├── README.md
-├── baymax architecture planning.md
-├── clipThat.py
-├── task manager/
-│   ├── cli.py
-│   ├── notion_client.py
-│   ├── tasks.py
-│   ├── reminders.py
-│   ├── notifier.py
-│   ├── watcher.py
-│   ├── setup.py
-│   └── config.py
-├── voice Interactive chat bot/
-│   ├── main.py
-│   ├── Prompt_input.py
-│   ├── Reasoning.py
-│   ├── API_and_tools.py
-│   └── README.md
-└── Virtual_space_constructor/
-    ├── Main.py
-    ├── live_3d_reconstructor.py
-    ├── Readme
-    └── scanned_scene.ply
+├── README.md                    ← this file
+├── pyproject.toml               ← single dependency manifest
+├── .env.example
+├── .github/workflows/           ← lint + typecheck + test on every PR
+├── docs/
+│   ├── PROBLEM.md
+│   ├── ARCHITECTURE.md
+│   ├── OWNERSHIP.md
+│   ├── ROADMAP.md
+│   ├── BENCHMARKING.md
+│   ├── decisions/               ← ADRs
+│   └── diagrams/
+├── src/
+│   ├── baymax_core/             ← agent loop, tool-call contract, state machine  (Marv)
+│   ├── baymax_service/          ← FastAPI, inference backend abstraction          (Marv)
+│   ├── baymax_telemetry/        ← logging, traces, cost tracker                   (Marv)
+│   ├── baymax_eval/             ← scenarios, runner, metrics, judge protocol     (Ronin)
+│   ├── baymax_models/           ← data prep, SFT/LoRA, model registry             (Ronin)
+│   └── baymax_tools/            ← Notion, Gmail, Calendar, clipboard adapters    (Ronin)
+├── scenarios/
+│   ├── v1/                      ← 50 scripted scenarios for v1
+│   └── v2/                      ← +150 for v2
+├── experiments/                 ← training runs, config snapshots
+├── results/                     ← versioned eval result JSONs
+├── tests/
+│   ├── unit/
+│   └── integration/
+├── scripts/
+│   └── run_benchmarks.sh
+└── future_work/                 ← parked re-scopings (β, γ)
 ```
 
-## 1) Notion Task + Reminder Stack (`task manager/`)
+---
 
-### Current Capabilities
+## Quick start
 
-1. Notion REST API wrapper for:
-   - Querying databases
-   - Retrieving pages
-   - Updating pages
-   - Creating pages
-   - Creating databases
-2. Typed `Task` model (`id`, `title`, `due`, `status`, `priority`, `tags`)
-3. Task CRUD-style helpers:
-   - List tasks from Notion
-   - Create task
-   - Update task fields
-4. Reminder polling service:
-   - Periodic due-date checks
-   - Immediate recheck trigger
-   - Deduped reminder firing
-5. Reminder/notification channels:
-   - Console prints
-   - macOS Messages (iMessage via AppleScript)
-   - macOS local notification + audible beeps
-6. Apple Reminders sync behaviors:
-   - Create/update reminders for Notion tasks
-   - Read reminder completion state
-   - Mark reminder completion state from code
-   - Push completion back to Notion (`Status="Done"`)
-7. Database change watcher:
-   - Long-running polling mode
-   - One-shot changepoint mode for cron jobs
-8. Persistent local config:
-   - Stored at `~/.baymax/config.json`
-9. Notion Tasks DB bootstrap helper:
-   - Creates expected schema under a parent page
+> Not yet runnable. Phase 0 (week of 2026-05-18) establishes the scaffolding. Phase 1 (May 25 – Jun 21) produces the first end-to-end baseline.
 
-### CLI Commands Implemented
+When Phase 1 is complete, this section will document:
 
-From `task manager/cli.py`, the command surface currently includes:
+- Setup (`uv sync` or equivalent)
+- Required env vars (Notion, Google APIs, OpenAI/Anthropic API keys)
+- How to run the eval harness against a baseline
+- How to run a single scenario end-to-end
 
-1. `list-tasks --db <DATABASE_ID>`
-2. `create-task --db <DATABASE_ID> <TITLE> [--due <ISO_DATETIME>]`
-3. `start-reminders --db <DATABASE_ID> [--interval <SECONDS>] [--notify-channels ...] [--watch-interval ...] [--no-db-watch]`
-4. `test-notifier [--notify-channels ...]`
-5. `config set <KEY> <VALUE>`
-6. `config show [--raw]`
-7. `setup-db --parent <PARENT_PAGE_ID> [--name <DB_NAME>]`
-8. `changepoint-check --db <DATABASE_ID> [--state-file <PATH>] [--notify-channels ...]`
+---
 
-### Expected Notion Database Schema
+## Why this exists
 
-Default schema created by `setup.py`:
+Two students breaking into AI engineering need a flagship project that signals real engineering depth, not breadth. This project is sized and scoped to be defensible under senior-engineer questioning: every metric is reproducible, every module has clear ownership, every decision has an ADR. The discipline matters more than the surface area.
 
-1. `Name` (title)
-2. `Due` (date)
-3. `Status` (select: `Not Started`, `In Progress`, `Done`)
-4. `Priority` (select: `Low`, `Medium`, `High`)
-5. `Tags` (multi-select)
+The full strategic rationale lives outside the repo. The non-negotiable rules that shape this project:
 
-### Environment Variables and Config
+1. No fake metrics
+2. No vague AI branding
+3. No weak features taking space from stronger ones
+4. No "I built this" for code the human cannot defend line-by-line
+5. AI as leverage, not substitution — humans own architecture, core algorithms, and debugging
 
-Environment variables used:
+---
 
-1. `NOTION_TOKEN` (required for Notion API calls)
-2. `NOTIFICATION_CHANNELS` (optional, comma-separated)
-3. `MESSAGE_RECIPIENT` (required if `message` channel is enabled)
-4. `REMINDER_LIST` (optional, Apple Reminders list name)
-5. `ALARM_RINGS` (optional, number of beep cycles)
+## License
 
-Persistent config keys (in `~/.baymax/config.json`) commonly used:
-
-1. `message_recipient`
-2. `notification_channels`
-3. `reminder_list`
-4. `alarm_rings`
-
-### macOS Dependencies
-
-`notifier.py` uses `osascript`, so macOS is currently required for:
-
-1. Messages channel (`MessageNotifier`)
-2. Local alarm/notification channel (`AlarmNotifier`)
-3. Apple Reminders sync helpers
-
-### Important Current Limitation
-
-`task manager/` contains package-style relative imports (`from . import ...`) but the directory name has a space. As the code stands, the CLI is not directly executable as a normal Python package without refactoring/renaming the package directory.
-
-## 2) Voice Interactive Chat Bot (`voice Interactive chat bot/`)
-
-### Current Capability Snapshot
-
-This prototype is a simple voice-to-LLM flow:
-
-1. Listen from microphone (`SpeechRecognition`)
-2. Transcribe using Wit.ai
-3. Send text to Ollama model (`gemma3:4b`) for response
-4. Print response to terminal
-
-### Files and Roles
-
-1. `main.py`: entry script (`listener -> transcriber -> lam_reasoning`)
-2. `Prompt_input.py`: mic capture + Wit.ai transcription
-3. `Reasoning.py`: Ollama chat + tool-decision helper
-4. `API_and_tools.py`: helper tools (`get_location`, `get_weather`, `get_time`, `get_date`, `shut_down`)
-
-### External Integrations
-
-1. Wit.ai speech recognition API
-2. Ollama local inference runtime
-3. `ipapi.co` for location
-4. `open-meteo.com` for weather
-
-### Notes on Current State
-
-1. `WIT_AI_KEY` is hardcoded in source.
-2. `shut_down` is defined twice; second definition overrides first.
-3. `decide_tools()` exists but is not wired into `main.py` flow.
-4. This is a prototype script flow, not yet structured as a package.
-
-### Typical Local Run (Prototype)
-
-```bash
-cd "voice Interactive chat bot"
-python3 main.py
-```
-
-Prerequisites are currently manual (`SpeechRecognition`, `PyAudio`, `requests`, `ollama` Python client, local Ollama runtime, microphone permissions).
-
-## 3) Virtual Space Constructor (`Virtual_space_constructor/`)
-
-### What It Does
-
-Manual capture 3D reconstruction pipeline:
-
-1. Capture RGB frames from webcam
-2. Predict monocular depth via MiDaS (`DPT_Large`)
-3. Convert depth + color to 3D point cloud
-4. Denoise point cloud (statistical outlier removal)
-5. Align new captures to existing scene via ICP
-6. Downsample with voxel grid
-7. Save final merged point cloud to `scanned_scene.ply`
-
-### Controls
-
-In manual capture mode:
-
-1. `SPACE`: capture current frame and merge into scene
-2. `ESC`: finish and save
-
-### Dependencies
-
-From code and local notes:
-
-1. `opencv-python` (`cv2`)
-2. `torch`
-3. `numpy`
-4. `open3d`
-5. Python 3.11 recommended for Open3D compatibility in this setup
-
-### Typical Run
-
-```bash
-cd Virtual_space_constructor
-python3 Main.py
-```
-
-### Notes on Current State
-
-1. First run may download MiDaS artifacts via `torch.hub`.
-2. Real-time performance is hardware-dependent and can be heavy.
-3. Existing notes recommend lower-frequency/manual captures due to compute limits.
-
-## Placeholder and Supporting Files
-
-1. `clipThat.py`: currently empty placeholder.
-2. `baymax architecture planning.md`: architecture notes and planning document.
-3. `Baymax.jpeg`: project image asset.
-
-## External Services and Runtime Matrix
-
-Current modules rely on:
-
-1. Notion API
-2. AppleScript (`osascript`) for macOS automation
-3. Wit.ai
-4. Ollama local models
-5. IP geolocation API (`ipapi.co`)
-6. Weather API (`open-meteo`)
-7. MiDaS model loading via `torch.hub`
-
-## Known Gaps and Risks
-
-1. No unified package/dependency management file at repo root (`requirements.txt` or `pyproject.toml` missing).
-2. No automated test suite yet.
-3. Mixed maturity levels across subprojects.
-4. Some prototype code contains hardcoded secrets/config values.
-5. Some paths/module naming conventions currently block direct packaging/execution workflows.
-
-## Near-Term Consolidation Recommendations
-
-1. Normalize package names/paths (remove spaces in Python package directories).
-2. Add a single top-level dependency manifest.
-3. Move secrets to environment variables or `.env` loading.
-4. Add smoke tests for each prototype entry point.
-5. Introduce one root launcher script with subcommands per module.
-
-## Vision
-
-BAYMAX is evolving toward a single personal-assistant platform. The current repository already contains concrete foundations in:
-
-1. Task automation with Notion and reminder synchronization
-2. Voice interaction and tool invocation experiments
-3. Visual/3D spatial understanding experiments
-
-The immediate opportunity is consolidation of these prototypes into one coherent runtime and developer workflow.
+TBD before public release.
