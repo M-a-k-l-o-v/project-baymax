@@ -154,3 +154,14 @@ Phase 4 exit criteria (Oct 1):
 - Wed 09:00: 15 min standup (status only)
 - Fri afternoon: PR review backlog cleared, week's metrics published to `results/`
 - Sat: optional. Sun: hard day off.
+
+## Parallel commitments (transparency)
+
+So the partner knows what else is in the time budget — and can flag if BAYMAX milestones slip because of it.
+
+**Marv:**
+- ML foundations self-study to prep for SCCM6230 (Jan 2027): ~30 hours total across 5 weekends, Jul 11 – Sep 6. Sized to fit between BAYMAX phases without disrupting milestones. Tracked in a local-only plan, not committed to this repo.
+- TADASHI-1 (individual robotics flagship): does NOT start until after BAYMAX v1 ships (Jul 26). No competing time before then.
+
+**Ronin:**
+- (add own parallel commitments here so Marv has the same visibility)

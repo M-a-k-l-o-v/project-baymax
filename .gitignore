@@ -18,20 +18,30 @@ dist/
 .eggs/
 pip-wheel-metadata/
 
-# Virtual environments
+# Virtual environments (catch any venv at any depth)
 .venv/
 venv/
 env/
 ENV/
-Virtual_space_constructor/live3d_env/
+**/live3d_env/
+**/*_env/
 
 # Test and tool caches
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.pyright/
 .hypothesis/
 .tox/
 .nox/
+
+# Node (in case any tool brings it in — e.g. pyright bundled runtime, MCP servers)
+node_modules/
+
+# Archived prototypes — kept locally for reference, NOT version-controlled.
+# Pre-pivot history is available via `git log` if you ever need the old code:
+#   git checkout c9a1622 -- 'voice Interactive chat bot'
+archive/
 
 # Coverage and logs
 .coverage
@@ -46,6 +56,7 @@ htmlcov/
 
 # Personal / non-shareable career docs (kept locally only)
 tadashi CV (GOALS).pdf
+docs/personal/
 
 # Local markdown / Quarto preview artifacts (any depth)
 *.html

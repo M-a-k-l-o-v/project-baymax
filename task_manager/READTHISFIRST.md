@@ -1,0 +1,1 @@
+yo bro this is a legacy reference folder for building the notion tool and some adapter and agent objects, this should not be put in the baymax folder as it should be treated as a way to understand how the prevuious notion project worked.
