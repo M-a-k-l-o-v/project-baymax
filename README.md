@@ -124,3 +124,4 @@ The full strategic rationale lives outside the repo. The non-negotiable rules th
 ## License
 
 [MIT](LICENSE) — Marv and Ronin, 2026.
+# test
