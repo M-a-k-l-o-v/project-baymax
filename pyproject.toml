@@ -1,7 +1,11 @@
 [project]
 name = "baymax"
 version = "0.1.0"
-description = "A locally-hostable agent that:1. Accepts voice or text input describing a productivity task 2. Selects and executes a sequence of tool calls (Notion, Calendar, Gmail, clipboard) 3. Confirms or asks for clarification 4. Logs every action with a trace ID for audit"
+description = "A locally-hostable agent that:"
+# 1. Accepts voice or text input describing a productivity task 
+# 2. Selects and executes a sequence of tool calls (Notion, Calendar, Gmail, clipboard) 
+# 3. Confirms or asks for clarification 
+# 4. Logs every action with a trace ID for audit
 readme = "README.md"
 authors = [
     { name = "M-a-k-l-o-v", email = "mmarvellous69@gmail.com" }
