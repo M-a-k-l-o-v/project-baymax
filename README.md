@@ -96,12 +96,29 @@ BAYMAX/
 
 ## Quick start
 
-> Not yet runnable. Phase 0 (week of 2026-05-18) establishes the scaffolding. Phase 1 (May 25 – Jun 21) produces the first end-to-end baseline.
+> Not yet runnable end-to-end. Phase 0 (week of 2026-05-18) establishes the scaffolding. Phase 1 (May 25 – Jun 21) produces the first end-to-end baseline.
 
-When Phase 1 is complete, this section will document:
+Local setup that works today:
 
-- Setup (`uv sync` or equivalent)
-- Required env vars (Notion, Google APIs, OpenAI/Anthropic API keys)
+```bash
+# 1. Install uv (one time)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# 2. Sync deps and install the package in dev mode
+uv sync
+
+# 3. Copy the env template and fill in your own credentials
+cp .env.example .env
+# (edit .env — see comments in .env.example for what each variable means)
+
+# 4. Run the development checks
+uv run ruff check
+uv run pyright
+uv run pytest
+```
+
+When Phase 1 is complete, this section will also document:
+
 - How to run the eval harness against a baseline
 - How to run a single scenario end-to-end
 
@@ -124,4 +141,3 @@ The full strategic rationale lives outside the repo. The non-negotiable rules th
 ## License
 
 [MIT](LICENSE) — Marv and Ronin, 2026.
-# test

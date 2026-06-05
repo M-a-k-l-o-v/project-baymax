@@ -54,6 +54,9 @@ htmlcov/
 .env.*
 !.env.example
 
+# OAuth / API credentials directory — referenced by .env, never committed
+secrets/
+
 # Personal / non-shareable career docs (kept locally only)
 tadashi CV (GOALS).pdf
 docs/personal/
