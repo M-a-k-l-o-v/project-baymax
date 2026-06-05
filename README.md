@@ -72,12 +72,13 @@ BAYMAX/
 │   ├── decisions/               ← ADRs
 │   └── diagrams/
 ├── src/
-│   ├── baymax_core/             ← agent loop, tool-call contract, state machine  (Marv)
-│   ├── baymax_service/          ← FastAPI, inference backend abstraction          (Marv)
-│   ├── baymax_telemetry/        ← logging, traces, cost tracker                   (Marv)
-│   ├── baymax_eval/             ← scenarios, runner, metrics, judge protocol     (Ronin)
-│   ├── baymax_models/           ← data prep, SFT/LoRA, model registry             (Ronin)
-│   └── baymax_tools/            ← Notion, Gmail, Calendar, clipboard adapters    (Ronin)
+│   └── baymax/
+│       ├── core/                ← agent loop, tool-call contract, state machine  (Marv)
+│       ├── service/             ← FastAPI, inference backend abstraction          (Marv)
+│       ├── telemetry/           ← logging, traces, cost tracker                   (Marv)
+│       ├── eval/                ← scenarios, runner, metrics, judge protocol     (Ronin)
+│       ├── models/              ← data prep, SFT/LoRA, model registry             (Ronin)
+│       └── tools/               ← Notion, Gmail, Calendar, clipboard adapters    (Ronin)
 ├── scenarios/
 │   ├── v1/                      ← 50 scripted scenarios for v1
 │   └── v2/                      ← +150 for v2

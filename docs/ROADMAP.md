@@ -20,11 +20,13 @@ Deliverables (both):
 - `.env.example`, secrets out of source
 - New layout established:
   ```
-  src/baymax_core/
-  src/baymax_tools/
-  src/baymax_models/
-  src/baymax_eval/
-  src/baymax_service/
+  src/baymax/
+    core/
+    tools/
+    models/
+    eval/
+    service/
+    telemetry/
   scenarios/
   experiments/ results/
   tests/unit/ tests/integration/
