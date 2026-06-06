@@ -1,0 +1,28 @@
+{
+  "id": "notion_create_task_001",
+  "category": "notion",
+  "difficulty": "implicit",
+  "description": "Create a simple Notion task with a clear title and due date.",
+  "user_input": "Add a Notion task to finish the physics lab report by Friday.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["notion.create_task"],
+  "initial_state": {
+    "notion_tasks": []
+  },
+  "expected_behavior": {
+    "type": "tool_call",
+    "tool": "notion.create_task",
+    "arguments": {
+      "title_contains": "physics lab report",
+      "due_date": "2026-05-22"
+    }
+  },
+  "success_criteria": [
+    "correct_tool_called",
+    "task_created",
+    "correct_title",
+    "correct_due_date"
+  ],
+  "tags": ["notion", "create_task", "single_tool"]
+}
+  

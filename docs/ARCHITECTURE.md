@@ -68,7 +68,7 @@ When you fill in a TODO, delete the TODO marker and the surrounding prompt.
 > - idempotency key
 > - timeout / retry policy
 >
-> Commit the schema as `src/baymax_core/schemas/tool_call.schema.json`. Write it before any code uses it. The schema is the contract.
+> Commit the schema as `src/baymax/core/schemas/tool_call.schema.json`. Write it before any code uses it. The schema is the contract.
 
 ### 3.2 Scenario format
 
@@ -79,7 +79,7 @@ When you fill in a TODO, delete the TODO marker and the surrounding prompt.
 > - ambiguity flag (if true, runner uses LLM-as-judge instead of exact match)
 > - tags (task type, difficulty, tools involved)
 >
-> Commit as `src/baymax_eval/schemas/scenario.schema.json`.
+> Commit as `src/baymax/eval/schemas/scenario.schema.json`.
 
 ### 3.3 Trace format
 

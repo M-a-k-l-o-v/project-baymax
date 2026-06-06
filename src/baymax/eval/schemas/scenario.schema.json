@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://baymax.local/schemas/scenario.schema.json",
+  "title": "BAYMAX Eval Scenario",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "category",
+    "difficulty",
+    "description",
+    "user_input",
+    "current_time",
+    "available_tools",
+    "initial_state",
+    "expected_behavior",
+    "success_criteria"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*_[0-9]{3}$"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["calendar", "notion", "gmail", "clipboard", "multi_tool"]
+    },
+    "difficulty": {
+      "type": "string",
+      "enum": ["explicit", "implicit", "contextual", "ambiguous", "multi_step"]
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "user_input": {
+      "type": "string",
+      "minLength": 1
+    },
+    "current_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "audio_path": {
+      "type": "string"
+    },
+    "available_tools": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$"
+      },
+      "uniqueItems": true
+    },
+    "initial_state": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "expected_behavior": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "tool", "arguments"],
+          "properties": {
+            "type": {
+              "const": "tool_call"
+            },
+            "tool": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$"
+            },
+            "arguments": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "question_contains"],
+          "properties": {
+            "type": {
+              "const": "clarification"
+            },
+            "question_contains": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "reason_contains"],
+          "properties": {
+            "type": {
+              "const": "refusal"
+            },
+            "reason_contains": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "success_criteria": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true,
+      "default": []
+    }
+  }
+}

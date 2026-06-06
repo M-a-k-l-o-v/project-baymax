@@ -1,0 +1,33 @@
+{
+  "id": "gmail_clarify_recipient_001",
+  "category": "gmail",
+  "difficulty": "ambiguous",
+  "description": "Ask for clarification when the user requests an email but does not specify a recipient.",
+  "user_input": "Email them that I will be 10 minutes late.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["gmail.send_email"],
+  "initial_state": {
+    "gmail_contacts": [
+      {
+        "name": "Maya Khan",
+        "email": "maya@example.com"
+      },
+      {
+        "name": "Omar Ali",
+        "email": "omar@example.com"
+      }
+    ],
+    "gmail_drafts": [],
+    "sent_emails": []
+  },
+  "expected_behavior": {
+    "type": "clarification",
+    "question_contains": ["who", "recipient"]
+  },
+  "success_criteria": [
+    "tool_not_called",
+    "clarification_requested",
+    "recipient_requested"
+  ],
+  "tags": ["gmail", "clarification", "missing_recipient"]
+}
