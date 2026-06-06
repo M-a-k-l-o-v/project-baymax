@@ -1,0 +1,31 @@
+{
+  "id": "calendar_create_001",
+  "category": "calendar",
+  "difficulty": "implicit",
+  "description": "Create a simple study event with a clear date and time.",
+  "user_input": "Schedule linear algebra revision tomorrow at 4pm for 2 hours.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["calendar.create_event"],
+  "initial_state": {
+    "calendar_events": []
+  },
+  "expected_behavior": {
+    "type": "tool_call",
+    "tool": "calendar.create_event",
+    "arguments": {
+      "title_contains": "linear algebra",
+      "start_date": "2026-05-19",
+      "start_time": "16:00",
+      "duration_minutes": 120
+    }
+  },
+  "success_criteria": [
+    "correct_tool_called",
+    "event_created",
+    "correct_title",
+    "correct_date",
+    "correct_time",
+    "correct_duration"
+  ],
+  "tags": ["calendar", "create_event", "single_tool"]
+}
