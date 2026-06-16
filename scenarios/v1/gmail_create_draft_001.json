@@ -1,0 +1,34 @@
+{
+  "id": "gmail_create_draft_001",
+  "category": "gmail",
+  "difficulty": "explicit",
+  "description": "Create an email draft with a clear recipient email and message.",
+  "user_input": "Draft an email to maya@example.com saying I will send the notes tonight.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["gmail.create_draft"],
+  "initial_state": {
+    "gmail_contacts": [
+      {
+        "name": "Maya Khan",
+        "email": "maya@example.com"
+      }
+    ],
+    "gmail_drafts": [],
+    "sent_emails": []
+  },
+  "expected_behavior": {
+    "type": "tool_call",
+    "tool": "gmail.create_draft",
+    "arguments": {
+      "recipient": "maya@example.com",
+      "body_contains": "send the notes tonight"
+    }
+  },
+  "success_criteria": [
+    "correct_tool_called",
+    "draft_created",
+    "correct_recipient",
+    "correct_body"
+  ],
+  "tags": ["gmail", "create_draft", "explicit", "single_tool"]
+}

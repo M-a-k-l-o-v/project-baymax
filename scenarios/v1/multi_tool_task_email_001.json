@@ -1,0 +1,47 @@
+{
+  "id": "multi_tool_task_email_001",
+  "category": "multi_tool",
+  "difficulty": "multi_step",
+  "description": "Create a Notion task and draft an email about the task.",
+  "user_input": "Create a Notion task for the physics lab report and draft an email to marv@example.com saying I added it.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["notion.create_task", "gmail.create_draft"],
+  "initial_state": {
+    "notion_tasks": [],
+    "gmail_contacts": [
+      {
+        "name": "Marv",
+        "email": "marv@example.com"
+      }
+    ],
+    "gmail_drafts": [],
+    "sent_emails": []
+  },
+  "expected_behavior": {
+    "type": "tool_calls",
+    "calls": [
+      {
+        "tool": "notion.create_task",
+        "arguments": {
+          "title_contains": "physics lab report"
+        }
+      },
+      {
+        "tool": "gmail.create_draft",
+        "arguments": {
+          "recipient": "marv@example.com",
+          "body_contains": "added it"
+        }
+      }
+    ]
+  },
+  "success_criteria": [
+    "correct_tool_call_order",
+    "correct_tools_called",
+    "correct_task_title",
+    "draft_created",
+    "correct_recipient",
+    "correct_body"
+  ],
+  "tags": ["multi_tool", "notion", "gmail", "multi_step"]
+}

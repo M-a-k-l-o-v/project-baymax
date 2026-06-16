@@ -1,0 +1,27 @@
+{
+  "id": "notion_explicit_create_001",
+  "category": "notion",
+  "difficulty": "explicit",
+  "description": "Create a Notion task with an exact title and exact due date.",
+  "user_input": "Create a Notion task called submit scholarship form due 2026-05-25.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["notion.create_task"],
+  "initial_state": {
+    "notion_tasks": []
+  },
+  "expected_behavior": {
+    "type": "tool_call",
+    "tool": "notion.create_task",
+    "arguments": {
+      "title_contains": "submit scholarship form",
+      "due_date": "2026-05-25"
+    }
+  },
+  "success_criteria": [
+    "correct_tool_called",
+    "task_created",
+    "correct_title",
+    "correct_due_date"
+  ],
+  "tags": ["notion", "explicit", "create_task", "single_tool"]
+}

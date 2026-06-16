@@ -39,7 +39,8 @@
     },
     "current_time": {
       "type": "string",
-      "format": "date-time"
+      "format": "date-time",
+      "pattern": ".*(Z|[+-][0-9]{2}:[0-9]{2})$"
     },
     "audio_path": {
       "type": "string"
@@ -67,13 +68,22 @@
             "type": {
               "const": "tool_call"
             },
-            "tool": {
-              "type": "string",
-              "pattern": "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$"
+            "tool": { "$ref": "#/$defs/toolName" },
+            "arguments": { "$ref": "#/$defs/toolArguments" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "calls"],
+          "properties": {
+            "type": {
+              "const": "tool_calls"
             },
-            "arguments": {
-              "type": "object",
-              "additionalProperties": true
+            "calls": {
+              "type": "array",
+              "minItems": 2,
+              "items": { "$ref": "#/$defs/expectedToolCall" }
             }
           }
         },
@@ -134,6 +144,25 @@
       },
       "uniqueItems": true,
       "default": []
+    }
+  },
+  "$defs": {
+    "toolName": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*\\.[a-z][a-z0-9_]*$"
+    },
+    "toolArguments": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "expectedToolCall": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tool", "arguments"],
+      "properties": {
+        "tool": { "$ref": "#/$defs/toolName" },
+        "arguments": { "$ref": "#/$defs/toolArguments" }
+      }
     }
   }
 }

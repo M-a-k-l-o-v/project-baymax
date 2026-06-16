@@ -1,0 +1,23 @@
+{
+  "id": "tool_unavailable_email_001",
+  "category": "gmail",
+  "difficulty": "explicit",
+  "description": "Refuse or explain inability when the requested email tool is unavailable.",
+  "user_input": "Email marv@example.com that I will be 10 minutes late.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["calendar.create_event"],
+  "initial_state": {
+    "gmail_drafts": [],
+    "sent_emails": []
+  },
+  "expected_behavior": {
+    "type": "refusal",
+    "reason_contains": ["email", "unavailable"]
+  },
+  "success_criteria": [
+    "tool_not_called",
+    "refusal_given",
+    "unavailable_tool_identified"
+  ],
+  "tags": ["gmail", "tool_unavailable", "refusal"]
+}

@@ -1,0 +1,22 @@
+{
+  "id": "calendar_clarify_time_001",
+  "category": "calendar",
+  "difficulty": "ambiguous",
+  "description": "Ask for clarification when a calendar request omits the event time.",
+  "user_input": "Schedule revision tomorrow.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["calendar.create_event"],
+  "initial_state": {
+    "calendar_events": []
+  },
+  "expected_behavior": {
+    "type": "clarification",
+    "question_contains": ["time"]
+  },
+  "success_criteria": [
+    "tool_not_called",
+    "clarification_requested",
+    "time_requested"
+  ],
+  "tags": ["calendar", "clarification", "missing_time"]
+}
