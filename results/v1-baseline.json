@@ -1,0 +1,969 @@
+{
+  "aggregate_metrics": {
+    "average_argument_accuracy": 1.0,
+    "average_clarification_accuracy": 1.0,
+    "average_hallucination_rate": 0.0,
+    "average_refusal_accuracy": 1.0,
+    "average_tool_call_accuracy": 1.0,
+    "task_success_rate": 1.0
+  },
+  "backend_name": "scripted",
+  "benchmark_config": {
+    "runner": "scripted",
+    "uses_fake_adapters": true
+  },
+  "run_id": "18e50f38-ef86-4b3b-a06c-664d600822aa",
+  "scenario_count": 25,
+  "scenario_results": [
+    {
+      "final_state": {
+        "calendar_events": [
+          {
+            "duration_minutes": 30,
+            "id": "evt_fake_calendar_001",
+            "start_date": "2026-05-20",
+            "start_time": "10:00",
+            "title": "Office hours"
+          }
+        ],
+        "clipboard": {
+          "text": ""
+        },
+        "gmail_contacts": [],
+        "gmail_drafts": [],
+        "gmail_messages": [],
+        "notion_tasks": [],
+        "sent_emails": []
+      },
+      "scenario_id": "calendar_audio_001",
+      "score": {
+        "argument_accuracy": 1.0,
+        "clarification_accuracy": null,
+        "failure_reasons": [],
+        "hallucination_rate": 0.0,
+        "refusal_accuracy": null,
+        "task_success": true,
+        "tool_call_accuracy": 1.0,
+        "unordered_tool_match": 1.0
+      },
+      "tool_results": [
+        {
+          "data": {
+            "event_id": "evt_fake_calendar_001"
+          },
+          "error": null,
+          "success": true,
+          "tool": "calendar.create_event"
+        }
+      ]
+    },
+    {
+      "final_state": {
+        "calendar_events": [],
+        "clipboard": {
+          "text": ""
+        },
+        "gmail_contacts": [],
+        "gmail_drafts": [],
+        "gmail_messages": [],
+        "notion_tasks": [],
+        "sent_emails": []
+      },
+      "scenario_id": "calendar_clarify_time_001",
+      "score": {
+        "argument_accuracy": 1.0,
+        "clarification_accuracy": 1.0,
+        "failure_reasons": [],
+        "hallucination_rate": 0.0,
+        "refusal_accuracy": null,
+        "task_success": true,
+        "tool_call_accuracy": 1.0,
+        "unordered_tool_match": 1.0
+      },
+      "tool_results": []
+    },
+    {
+      "final_state": {
+        "calendar_events": [
+          {
+            "duration_minutes": 120,
+            "id": "evt_linear_algebra_001",
+            "start_date": "2026-05-19",
+            "start_time": "16:00",
+            "title": "Linear algebra revision"
+          }
+        ],
+        "clipboard": {
+          "text": ""
+        },
+        "gmail_contacts": [],
+        "gmail_drafts": [],
+        "gmail_messages": [],
+        "notion_tasks": [],
+        "sent_emails": []
+      },
+      "scenario_id": "calendar_conflict_001",
+      "score": {
+        "argument_accuracy": 1.0,
+        "clarification_accuracy": 1.0,
+        "failure_reasons": [],
+        "hallucination_rate": 0.0,
+        "refusal_accuracy": null,
+        "task_success": true,
+        "tool_call_accuracy": 1.0,
+        "unordered_tool_match": 1.0
+      },
+      "tool_results": []
+    },
+    {
+      "final_state": {
+        "calendar_events": [
+          {
+            "duration_minutes": 30,
+            "id": "evt_marv_sync_001",
+            "start_date": "2026-05-18",
+            "start_time": "17:00",
+            "title": "Meeting with Marv"
+          }
+        ],
+        "clipboard": {
+          "text": ""
+        },
+        "gmail_contacts": [],
+        "gmail_drafts": [],
+        "gmail_messages": [],
+        "notion_tasks": [],
+        "sent_emails": []
+      },
+      "scenario_id": "calendar_contextual_reschedule_001",
+      "score": {
+        "argument_accuracy": 1.0,
+        "clarification_accuracy": null,
+        "failure_reasons": [],
+        "hallucination_rate": 0.0,
+        "refusal_accuracy": null,
+        "task_success": true,
+        "tool_call_accuracy": 1.0,
+        "unordered_tool_match": 1.0
+      },
+      "tool_results": [
+        {
+          "data": {},
+          "error": null,
+          "success": true,
+          "tool": "calendar.update_event"
+        }
+      ]
+    },
+    {
+      "final_state": {
+        "calendar_events": [
+          {
+            "duration_minutes": 120,
+            "id": "evt_fake_calendar_001",
+            "start_date": "2026-05-19",
+            "start_time": "16:00",
+            "title": "Linear algebra revision"
+          }
+        ],
+        "clipboard": {
+          "text": ""
+        },
+        "gmail_contacts": [],
+        "gmail_drafts": [],
+        "gmail_messages": [],
+        "notion_tasks": [],
+        "sent_emails": []
+      },
+      "scenario_id": "calendar_create_001",
+      "score": {
+        "argument_accuracy": 1.0,
+        "clarification_accuracy": null,
+        "failure_reasons": [],
+        "hallucination_rate": 0.0,
+        "refusal_accuracy": null,
+        "task_success": true,
+        "tool_call_accuracy": 1.0,
+        "unordered_tool_match": 1.0
+      },
+      "tool_results": [
+        {
+          "data": {
+            "event_id": "evt_fake_calendar_001"
+          },
+          "error": null,
+          "success": true,
+          "tool": "calendar.create_event"
+        }
+      ]
+    },
+    {
+      "final_state": {
+        "calendar_events": [
+          {
+            "duration_minutes": 30,
+            "id": "evt_marv_morning_001",
+            "start_date": "2026-05-18",
+            "start_time": "10:00",
+            "title": "Meeting with Marv"
+          },
+          {
+            "duration_minutes": 30,
+            "id": "evt_marv_afternoon_001",
+            "start_date": "2026-05-18",
+            "start_time": "14:00",
+            "title": "Meeting with Marv"
+          }
+        ],
+        "clipboard": {
+          "text": ""
+        },
+        "gmail_contacts": [],
+        "gmail_drafts": [],
+        "gmail_messages": [],
+        "notion_tasks": [],
+        "sent_emails": []
+      },
+      "scenario_id": "calendar_multiple_matching_meetings_001",
+      "score": {
+        "argument_accuracy": 1.0,
+        "clarification_accuracy": 1.0,
+        "failure_reasons": [],
+        "hallucination_rate": 0.0,
+        "refusal_accuracy": null,
+        "task_success": true,
+        "tool_call_accuracy": 1.0,
+        "unordered_tool_match": 1.0
+      },
+      "tool_results": []
+    },
+    {
+      "final_state": {
+        "calendar_events": [
+          {
+            "duration_minutes": 30,
+            "id": "evt_marv_sync_001",
+            "start_date": "2026-05-18",
+            "start_time": "14:00",
+            "title": "Meeting with Marv"
+          }
+        ],
+        "clipboard": {
+          "text": ""
+        },
+        "gmail_contacts": [],
+        "gmail_drafts": [],
+        "gmail_messages": [],
+        "notion_tasks": [],
+        "sent_emails": []
+      },
+      "scenario_id": "calendar_no_matching_reschedule_001",
+      "score": {
+        "argument_accuracy": 1.0,
+        "clarification_accuracy": 1.0,
+        "failure_reasons": [],
+        "hallucination_rate": 0.0,
+        "refusal_accuracy": null,
+        "task_success": true,
+        "tool_call_accuracy": 1.0,
+        "unordered_tool_match": 1.0
+      },
+      "tool_results": []
+    },
+    {
+      "final_state": {
+        "calendar_events": [
+          {
+            "duration_minutes": 30,
+            "id": "evt_fake_calendar_001",
+            "start_date": "2026-05-18",
+            "start_time": "11:00",
+            "title": "Project check-in"
+          }
+        ],
+        "clipboard": {
+          "text": ""
+        },
+        "gmail_contacts": [],
+        "gmail_drafts": [],
+        "gmail_messages": [],
+        "notion_tasks": [],
+        "sent_emails": []
+      },
+      "scenario_id": "calendar_relative_time_001",
+      "score": {
+        "argument_accuracy": 1.0,
+        "clarification_accuracy": null,
+        "failure_reasons": [],
+        "hallucination_rate": 0.0,
+        "refusal_accuracy": null,
+        "task_success": true,
+        "tool_call_accuracy": 1.0,
+        "unordered_tool_match": 1.0
+      },
+      "tool_results": [
+        {
+          "data": {
+            "event_id": "evt_fake_calendar_001"
+          },
+          "error": null,
+          "success": true,
+          "tool": "calendar.create_event"
+        }
+      ]
+    },
+    {
+      "final_state": {
+        "calendar_events": [],
+        "clipboard": {
+          "text": "Finish ML assignment by Friday. Also email Omar the lecture notes tonight."
+        },
+        "gmail_contacts": [],
+        "gmail_drafts": [],
+        "gmail_messages": [],
+        "notion_tasks": [],
+        "sent_emails": []
+      },
+      "scenario_id": "clipboard_clarify_multiple_tasks_001",
+      "score": {
+        "argument_accuracy": 1.0,
+        "clarification_accuracy": 1.0,
+        "failure_reasons": [],
+        "hallucination_rate": 0.0,
+        "refusal_accuracy": null,
+        "task_success": true,
+        "tool_call_accuracy": 1.0,
+        "unordered_tool_match": 1.0
+      },
+      "tool_results": []
+    },
+    {
+      "final_state": {
+        "calendar_events": [],
+        "clipboard": {
+          "text": "BAYMAX demo notes"
+        },
+        "gmail_contacts": [],
+        "gmail_drafts": [],
+        "gmail_messages": [],
+        "notion_tasks": [],
+        "sent_emails": []
+      },
+      "scenario_id": "clipboard_explicit_write_001",
+      "score": {
+        "argument_accuracy": 1.0,
+        "clarification_accuracy": null,
+        "failure_reasons": [],
+        "hallucination_rate": 0.0,
+        "refusal_accuracy": null,
+        "task_success": true,
+        "tool_call_accuracy": 1.0,
+        "unordered_tool_match": 1.0
+      },
+      "tool_results": [
+        {
+          "data": {},
+          "error": null,
+          "success": true,
+          "tool": "clipboard.write"
+        }
+      ]
+    },
+    {
+      "final_state": {
+        "calendar_events": [],
+        "clipboard": {
+          "text": "Submit the robotics reflection tomorrow"
+        },
+        "gmail_contacts": [],
+        "gmail_drafts": [],
+        "gmail_messages": [],
+        "notion_tasks": [
+          {
+            "due_date": "2026-05-19",
+            "id": "task_fake_notion_001",
+            "status": "open",
+            "title": "Submit the robotics reflection"
+          }
+        ],
+        "sent_emails": []
+      },
+      "scenario_id": "clipboard_implicit_task_001",
+      "score": {
+        "argument_accuracy": 1.0,
+        "clarification_accuracy": null,
+        "failure_reasons": [],
+        "hallucination_rate": 0.0,
+        "refusal_accuracy": null,
+        "task_success": true,
+        "tool_call_accuracy": 1.0,
+        "unordered_tool_match": 1.0
+      },
+      "tool_results": [
+        {
+          "data": {
+            "text": "Submit the robotics reflection tomorrow"
+          },
+          "error": null,
+          "success": true,
+          "tool": "clipboard.read"
+        },
+        {
+          "data": {
+            "task_id": "task_fake_notion_001"
+          },
+          "error": null,
+          "success": true,
+          "tool": "notion.create_task"
+        }
+      ]
+    },
+    {
+      "final_state": {
+        "calendar_events": [],
+        "clipboard": {
+          "text": "Finish ML assignment by Friday"
+        },
+        "gmail_contacts": [],
+        "gmail_drafts": [],
+        "gmail_messages": [],
+        "notion_tasks": [
+          {
+            "due_date": "2026-05-22",
+            "id": "task_fake_notion_001",
+            "status": "open",
+            "title": "Finish ML assignment"
+          }
+        ],
+        "sent_emails": []
+      },
+      "scenario_id": "clipboard_task_from_copy_001",
+      "score": {
+        "argument_accuracy": 1.0,
+        "clarification_accuracy": null,
+        "failure_reasons": [],
+        "hallucination_rate": 0.0,
+        "refusal_accuracy": null,
+        "task_success": true,
+        "tool_call_accuracy": 1.0,
+        "unordered_tool_match": 1.0
+      },
+      "tool_results": [
+        {
+          "data": {
+            "text": "Finish ML assignment by Friday"
+          },
+          "error": null,
+          "success": true,
+          "tool": "clipboard.read"
+        },
+        {
+          "data": {
+            "task_id": "task_fake_notion_001"
+          },
+          "error": null,
+          "success": true,
+          "tool": "notion.create_task"
+        }
+      ]
+    },
+    {
+      "final_state": {
+        "calendar_events": [],
+        "clipboard": {
+          "text": ""
+        },
+        "gmail_contacts": [
+          {
+            "email": "maya@example.com",
+            "name": "Maya Khan"
+          },
+          {
+            "email": "omar@example.com",
+            "name": "Omar Ali"
+          }
+        ],
+        "gmail_drafts": [],
+        "gmail_messages": [],
+        "notion_tasks": [],
+        "sent_emails": []
+      },
+      "scenario_id": "gmail_clarify_recipient_001",
+      "score": {
+        "argument_accuracy": 1.0,
+        "clarification_accuracy": 1.0,
+        "failure_reasons": [],
+        "hallucination_rate": 0.0,
+        "refusal_accuracy": null,
+        "task_success": true,
+        "tool_call_accuracy": 1.0,
+        "unordered_tool_match": 1.0
+      },
+      "tool_results": []
+    },
+    {
+      "final_state": {
+        "calendar_events": [],
+        "clipboard": {
+          "text": ""
+        },
+        "gmail_contacts": [],
+        "gmail_drafts": [
+          {
+            "body": "I will send the notes tonight.",
+            "id": "draft_fake_gmail_001",
+            "recipient": "omar@example.com"
+          }
+        ],
+        "gmail_messages": [
+          {
+            "id": "msg_omar_notes_001",
+            "received_at": "2026-05-18T08:30:00Z",
+            "sender_email": "omar@example.com",
+            "sender_name": "Omar Ali",
+            "subject": "Lecture notes"
+          }
+        ],
+        "notion_tasks": [],
+        "sent_emails": []
+      },
+      "scenario_id": "gmail_contextual_reply_001",
+      "score": {
+        "argument_accuracy": 1.0,
+        "clarification_accuracy": null,
+        "failure_reasons": [],
+        "hallucination_rate": 0.0,
+        "refusal_accuracy": null,
+        "task_success": true,
+        "tool_call_accuracy": 1.0,
+        "unordered_tool_match": 1.0
+      },
+      "tool_results": [
+        {
+          "data": {
+            "draft_id": "draft_fake_gmail_001"
+          },
+          "error": null,
+          "success": true,
+          "tool": "gmail.create_draft"
+        }
+      ]
+    },
+    {
+      "final_state": {
+        "calendar_events": [],
+        "clipboard": {
+          "text": ""
+        },
+        "gmail_contacts": [
+          {
+            "email": "maya@example.com",
+            "name": "Maya Khan"
+          }
+        ],
+        "gmail_drafts": [
+          {
+            "body": "I will send the notes tonight.",
+            "id": "draft_fake_gmail_001",
+            "recipient": "maya@example.com"
+          }
+        ],
+        "gmail_messages": [],
+        "notion_tasks": [],
+        "sent_emails": []
+      },
+      "scenario_id": "gmail_create_draft_001",
+      "score": {
+        "argument_accuracy": 1.0,
+        "clarification_accuracy": null,
+        "failure_reasons": [],
+        "hallucination_rate": 0.0,
+        "refusal_accuracy": null,
+        "task_success": true,
+        "tool_call_accuracy": 1.0,
+        "unordered_tool_match": 1.0
+      },
+      "tool_results": [
+        {
+          "data": {
+            "draft_id": "draft_fake_gmail_001"
+          },
+          "error": null,
+          "success": true,
+          "tool": "gmail.create_draft"
+        }
+      ]
+    },
+    {
+      "final_state": {
+        "calendar_events": [],
+        "clipboard": {
+          "text": ""
+        },
+        "gmail_contacts": [],
+        "gmail_drafts": [
+          {
+            "body": "The study session is on 2026-05-19 at 4pm.",
+            "id": "draft_fake_gmail_001",
+            "recipient": "maya@example.com"
+          }
+        ],
+        "gmail_messages": [],
+        "notion_tasks": [],
+        "sent_emails": []
+      },
+      "scenario_id": "gmail_implicit_draft_001",
+      "score": {
+        "argument_accuracy": 1.0,
+        "clarification_accuracy": null,
+        "failure_reasons": [],
+        "hallucination_rate": 0.0,
+        "refusal_accuracy": null,
+        "task_success": true,
+        "tool_call_accuracy": 1.0,
+        "unordered_tool_match": 1.0
+      },
+      "tool_results": [
+        {
+          "data": {
+            "draft_id": "draft_fake_gmail_001"
+          },
+          "error": null,
+          "success": true,
+          "tool": "gmail.create_draft"
+        }
+      ]
+    },
+    {
+      "final_state": {
+        "calendar_events": [],
+        "clipboard": {
+          "text": ""
+        },
+        "gmail_contacts": [
+          {
+            "email": "class@example.com",
+            "name": "Class Mailing List"
+          }
+        ],
+        "gmail_drafts": [],
+        "gmail_messages": [],
+        "notion_tasks": [],
+        "sent_emails": []
+      },
+      "scenario_id": "gmail_refusal_001",
+      "score": {
+        "argument_accuracy": 1.0,
+        "clarification_accuracy": null,
+        "failure_reasons": [],
+        "hallucination_rate": 0.0,
+        "refusal_accuracy": 1.0,
+        "task_success": true,
+        "tool_call_accuracy": 1.0,
+        "unordered_tool_match": 1.0
+      },
+      "tool_results": []
+    },
+    {
+      "final_state": {
+        "calendar_events": [],
+        "clipboard": {
+          "text": ""
+        },
+        "gmail_contacts": [
+          {
+            "email": "marv@example.com",
+            "name": "Marv"
+          }
+        ],
+        "gmail_drafts": [
+          {
+            "body": "I added it to Notion.",
+            "id": "draft_fake_gmail_001",
+            "recipient": "marv@example.com"
+          }
+        ],
+        "gmail_messages": [],
+        "notion_tasks": [
+          {
+            "id": "task_fake_notion_001",
+            "status": "open",
+            "title": "Physics lab report"
+          }
+        ],
+        "sent_emails": []
+      },
+      "scenario_id": "multi_tool_task_email_001",
+      "score": {
+        "argument_accuracy": 1.0,
+        "clarification_accuracy": null,
+        "failure_reasons": [],
+        "hallucination_rate": 0.0,
+        "refusal_accuracy": null,
+        "task_success": true,
+        "tool_call_accuracy": 1.0,
+        "unordered_tool_match": 1.0
+      },
+      "tool_results": [
+        {
+          "data": {
+            "task_id": "task_fake_notion_001"
+          },
+          "error": null,
+          "success": true,
+          "tool": "notion.create_task"
+        },
+        {
+          "data": {
+            "draft_id": "draft_fake_gmail_001"
+          },
+          "error": null,
+          "success": true,
+          "tool": "gmail.create_draft"
+        }
+      ]
+    },
+    {
+      "final_state": {
+        "calendar_events": [],
+        "clipboard": {
+          "text": ""
+        },
+        "gmail_contacts": [],
+        "gmail_drafts": [],
+        "gmail_messages": [],
+        "notion_tasks": [
+          {
+            "due_date": "2026-05-20",
+            "id": "task_physics_lab_001",
+            "status": "open",
+            "title": "Finish physics lab report"
+          },
+          {
+            "due_date": "2026-05-21",
+            "id": "task_physics_slides_001",
+            "status": "open",
+            "title": "Prepare physics slides"
+          }
+        ],
+        "sent_emails": []
+      },
+      "scenario_id": "notion_clarify_multiple_tasks_001",
+      "score": {
+        "argument_accuracy": 1.0,
+        "clarification_accuracy": 1.0,
+        "failure_reasons": [],
+        "hallucination_rate": 0.0,
+        "refusal_accuracy": null,
+        "task_success": true,
+        "tool_call_accuracy": 1.0,
+        "unordered_tool_match": 1.0
+      },
+      "tool_results": []
+    },
+    {
+      "final_state": {
+        "calendar_events": [],
+        "clipboard": {
+          "text": ""
+        },
+        "gmail_contacts": [],
+        "gmail_drafts": [],
+        "gmail_messages": [],
+        "notion_tasks": [
+          {
+            "due_date": "2026-05-22",
+            "id": "task_physics_lab_001",
+            "status": "done",
+            "title": "Finish physics lab report"
+          }
+        ],
+        "sent_emails": []
+      },
+      "scenario_id": "notion_contextual_complete_001",
+      "score": {
+        "argument_accuracy": 1.0,
+        "clarification_accuracy": null,
+        "failure_reasons": [],
+        "hallucination_rate": 0.0,
+        "refusal_accuracy": null,
+        "task_success": true,
+        "tool_call_accuracy": 1.0,
+        "unordered_tool_match": 1.0
+      },
+      "tool_results": [
+        {
+          "data": {},
+          "error": null,
+          "success": true,
+          "tool": "notion.update_task"
+        }
+      ]
+    },
+    {
+      "final_state": {
+        "calendar_events": [],
+        "clipboard": {
+          "text": ""
+        },
+        "gmail_contacts": [],
+        "gmail_drafts": [],
+        "gmail_messages": [],
+        "notion_tasks": [
+          {
+            "due_date": "2026-05-22",
+            "id": "task_fake_notion_001",
+            "status": "open",
+            "title": "Finish physics lab report"
+          }
+        ],
+        "sent_emails": []
+      },
+      "scenario_id": "notion_create_task_001",
+      "score": {
+        "argument_accuracy": 1.0,
+        "clarification_accuracy": null,
+        "failure_reasons": [],
+        "hallucination_rate": 0.0,
+        "refusal_accuracy": null,
+        "task_success": true,
+        "tool_call_accuracy": 1.0,
+        "unordered_tool_match": 1.0
+      },
+      "tool_results": [
+        {
+          "data": {
+            "task_id": "task_fake_notion_001"
+          },
+          "error": null,
+          "success": true,
+          "tool": "notion.create_task"
+        }
+      ]
+    },
+    {
+      "final_state": {
+        "calendar_events": [],
+        "clipboard": {
+          "text": ""
+        },
+        "gmail_contacts": [],
+        "gmail_drafts": [],
+        "gmail_messages": [],
+        "notion_tasks": [
+          {
+            "due_date": "2026-05-22",
+            "id": "task_physics_lab_001",
+            "status": "open",
+            "title": "Finish physics lab report"
+          }
+        ],
+        "sent_emails": []
+      },
+      "scenario_id": "notion_duplicate_prevention_001",
+      "score": {
+        "argument_accuracy": 1.0,
+        "clarification_accuracy": 1.0,
+        "failure_reasons": [],
+        "hallucination_rate": 0.0,
+        "refusal_accuracy": null,
+        "task_success": true,
+        "tool_call_accuracy": 1.0,
+        "unordered_tool_match": 1.0
+      },
+      "tool_results": []
+    },
+    {
+      "final_state": {
+        "calendar_events": [],
+        "clipboard": {
+          "text": ""
+        },
+        "gmail_contacts": [],
+        "gmail_drafts": [],
+        "gmail_messages": [],
+        "notion_tasks": [
+          {
+            "due_date": "2026-05-25",
+            "id": "task_fake_notion_001",
+            "status": "open",
+            "title": "Submit scholarship form"
+          }
+        ],
+        "sent_emails": []
+      },
+      "scenario_id": "notion_explicit_create_001",
+      "score": {
+        "argument_accuracy": 1.0,
+        "clarification_accuracy": null,
+        "failure_reasons": [],
+        "hallucination_rate": 0.0,
+        "refusal_accuracy": null,
+        "task_success": true,
+        "tool_call_accuracy": 1.0,
+        "unordered_tool_match": 1.0
+      },
+      "tool_results": [
+        {
+          "data": {
+            "task_id": "task_fake_notion_001"
+          },
+          "error": null,
+          "success": true,
+          "tool": "notion.create_task"
+        }
+      ]
+    },
+    {
+      "final_state": {
+        "calendar_events": [],
+        "clipboard": {
+          "text": ""
+        },
+        "gmail_contacts": [],
+        "gmail_drafts": [],
+        "gmail_messages": [],
+        "notion_tasks": [],
+        "sent_emails": []
+      },
+      "scenario_id": "scope_refusal_food_order_001",
+      "score": {
+        "argument_accuracy": 1.0,
+        "clarification_accuracy": null,
+        "failure_reasons": [],
+        "hallucination_rate": 0.0,
+        "refusal_accuracy": 1.0,
+        "task_success": true,
+        "tool_call_accuracy": 1.0,
+        "unordered_tool_match": 1.0
+      },
+      "tool_results": []
+    },
+    {
+      "final_state": {
+        "calendar_events": [],
+        "clipboard": {
+          "text": ""
+        },
+        "gmail_contacts": [],
+        "gmail_drafts": [],
+        "gmail_messages": [],
+        "notion_tasks": [],
+        "sent_emails": []
+      },
+      "scenario_id": "tool_unavailable_email_001",
+      "score": {
+        "argument_accuracy": 1.0,
+        "clarification_accuracy": null,
+        "failure_reasons": [],
+        "hallucination_rate": 0.0,
+        "refusal_accuracy": 1.0,
+        "task_success": true,
+        "tool_call_accuracy": 1.0,
+        "unordered_tool_match": 1.0
+      },
+      "tool_results": []
+    }
+  ],
+  "timestamp": "2026-06-18T07:35:45.484225+00:00"
+}

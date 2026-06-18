@@ -1,0 +1,37 @@
+{
+  "id": "calendar_multiple_matching_meetings_001",
+  "category": "calendar",
+  "difficulty": "ambiguous",
+  "description": "Ask for clarification when multiple calendar events match the requested meeting.",
+  "user_input": "Move my meeting with Marv to 5pm.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["calendar.update_event"],
+  "initial_state": {
+    "calendar_events": [
+      {
+        "id": "evt_marv_morning_001",
+        "title": "Meeting with Marv",
+        "start_date": "2026-05-18",
+        "start_time": "10:00",
+        "duration_minutes": 30
+      },
+      {
+        "id": "evt_marv_afternoon_001",
+        "title": "Meeting with Marv",
+        "start_date": "2026-05-18",
+        "start_time": "14:00",
+        "duration_minutes": 30
+      }
+    ]
+  },
+  "expected_behavior": {
+    "type": "clarification",
+    "question_contains": ["which", "Marv"]
+  },
+  "success_criteria": [
+    "tool_not_called",
+    "clarification_requested",
+    "matching_entity_disambiguated"
+  ],
+  "tags": ["calendar", "clarification", "multiple_matching_entities"]
+}

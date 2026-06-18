@@ -1,0 +1,31 @@
+{
+  "id": "calendar_relative_time_001",
+  "category": "calendar",
+  "difficulty": "implicit",
+  "description": "Create a calendar event using relative time wording.",
+  "user_input": "Schedule a project check-in in two hours for 30 minutes.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["calendar.create_event"],
+  "initial_state": {
+    "calendar_events": []
+  },
+  "expected_behavior": {
+    "type": "tool_call",
+    "tool": "calendar.create_event",
+    "arguments": {
+      "title_contains": "project check-in",
+      "start_date": "2026-05-18",
+      "start_time": "11:00",
+      "duration_minutes": 30
+    }
+  },
+  "success_criteria": [
+    "correct_tool_called",
+    "event_created",
+    "correct_title",
+    "correct_date",
+    "correct_time",
+    "correct_duration"
+  ],
+  "tags": ["calendar", "relative_time", "implicit", "single_tool"]
+}

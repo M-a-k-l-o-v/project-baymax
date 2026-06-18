@@ -1,0 +1,39 @@
+{
+  "id": "clipboard_implicit_task_001",
+  "category": "multi_tool",
+  "difficulty": "multi_step",
+  "description": "Read copied text with relative date wording and create a Notion task.",
+  "user_input": "Turn what I copied into a task.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["clipboard.read", "notion.create_task"],
+  "initial_state": {
+    "clipboard": {
+      "text": "Submit the robotics reflection tomorrow"
+    },
+    "notion_tasks": []
+  },
+  "expected_behavior": {
+    "type": "tool_calls",
+    "calls": [
+      {
+        "tool": "clipboard.read",
+        "arguments": {}
+      },
+      {
+        "tool": "notion.create_task",
+        "arguments": {
+          "title_contains": "robotics reflection",
+          "due_date": "2026-05-19"
+        }
+      }
+    ]
+  },
+  "success_criteria": [
+    "correct_tool_call_order",
+    "clipboard_read",
+    "task_created",
+    "correct_title",
+    "correct_due_date"
+  ],
+  "tags": ["system_clipboard", "notion", "implicit", "multi_step"]
+}

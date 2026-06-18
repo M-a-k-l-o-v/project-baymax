@@ -1,0 +1,35 @@
+{
+  "id": "notion_clarify_multiple_tasks_001",
+  "category": "notion",
+  "difficulty": "ambiguous",
+  "description": "Ask for clarification when multiple Notion tasks match the user's request.",
+  "user_input": "Move the physics task to Friday.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["notion.update_task"],
+  "initial_state": {
+    "notion_tasks": [
+      {
+        "id": "task_physics_lab_001",
+        "title": "Finish physics lab report",
+        "status": "open",
+        "due_date": "2026-05-20"
+      },
+      {
+        "id": "task_physics_slides_001",
+        "title": "Prepare physics slides",
+        "status": "open",
+        "due_date": "2026-05-21"
+      }
+    ]
+  },
+  "expected_behavior": {
+    "type": "clarification",
+    "question_contains": ["which", "physics"]
+  },
+  "success_criteria": [
+    "tool_not_called",
+    "clarification_requested",
+    "matching_entity_disambiguated"
+  ],
+  "tags": ["notion", "clarification", "multiple_matching_entities"]
+}

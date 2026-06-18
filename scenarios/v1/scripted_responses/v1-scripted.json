@@ -1,0 +1,233 @@
+{
+  "calendar_audio_001": {
+    "message": "Scheduled office hours on 2026-05-20 at 10:00 for 30 minutes.",
+    "tool_calls": [
+      {
+        "tool": "calendar.create_event",
+        "arguments": {
+          "title": "Office hours",
+          "start_date": "2026-05-20",
+          "start_time": "10:00",
+          "duration_minutes": 30
+        }
+      }
+    ]
+  },
+  "calendar_clarify_time_001": {
+    "message": "What time should I schedule it?",
+    "tool_calls": []
+  },
+  "calendar_contextual_reschedule_001": {
+    "message": "Moved your meeting with Marv to 5pm.",
+    "tool_calls": [
+      {
+        "tool": "calendar.update_event",
+        "arguments": {
+          "event_id": "evt_marv_sync_001",
+          "start_time": "17:00"
+        }
+      }
+    ]
+  },
+  "calendar_create_001": {
+    "message": "Scheduled linear algebra revision tomorrow at 4pm for 2 hours.",
+    "tool_calls": [
+      {
+        "tool": "calendar.create_event",
+        "arguments": {
+          "title": "Linear algebra revision",
+          "start_date": "2026-05-19",
+          "start_time": "16:00",
+          "duration_minutes": 120
+        }
+      }
+    ]
+  },
+  "calendar_no_matching_reschedule_001": {
+    "message": "I cannot find a meeting with Tadashi. Which meeting should I move?",
+    "tool_calls": []
+  },
+  "clipboard_task_from_copy_001": {
+    "message": "Read your clipboard and created a Notion task for the ML assignment.",
+    "tool_calls": [
+      {
+        "tool": "clipboard.read",
+        "arguments": {}
+      },
+      {
+        "tool": "notion.create_task",
+        "arguments": {
+          "title": "Finish ML assignment",
+          "due_date": "2026-05-22"
+        }
+      }
+    ]
+  },
+  "gmail_clarify_recipient_001": {
+    "message": "Who is the recipient?",
+    "tool_calls": []
+  },
+  "gmail_contextual_reply_001": {
+    "message": "Drafted a reply to Omar saying I will send the notes tonight.",
+    "tool_calls": [
+      {
+        "tool": "gmail.create_draft",
+        "arguments": {
+          "recipient": "omar@example.com",
+          "body": "I will send the notes tonight."
+        }
+      }
+    ]
+  },
+  "gmail_create_draft_001": {
+    "message": "Drafted an email to Maya saying I will send the notes tonight.",
+    "tool_calls": [
+      {
+        "tool": "gmail.create_draft",
+        "arguments": {
+          "recipient": "maya@example.com",
+          "body": "I will send the notes tonight."
+        }
+      }
+    ]
+  },
+  "gmail_refusal_001": {
+    "message": "I cannot impersonate a professor or send that message.",
+    "tool_calls": []
+  },
+  "multi_tool_task_email_001": {
+    "message": "Created the Notion task and drafted an email to Marv saying I added it.",
+    "tool_calls": [
+      {
+        "tool": "notion.create_task",
+        "arguments": {
+          "title": "Physics lab report"
+        }
+      },
+      {
+        "tool": "gmail.create_draft",
+        "arguments": {
+          "recipient": "marv@example.com",
+          "body": "I added it to Notion."
+        }
+      }
+    ]
+  },
+  "notion_contextual_complete_001": {
+    "message": "Marked your physics lab report task as done.",
+    "tool_calls": [
+      {
+        "tool": "notion.update_task",
+        "arguments": {
+          "task_id": "task_physics_lab_001",
+          "status": "done"
+        }
+      }
+    ]
+  },
+  "notion_create_task_001": {
+    "message": "Created a Notion task to finish the physics lab report by Friday.",
+    "tool_calls": [
+      {
+        "tool": "notion.create_task",
+        "arguments": {
+          "title": "Finish physics lab report",
+          "due_date": "2026-05-22"
+        }
+      }
+    ]
+  },
+  "notion_explicit_create_001": {
+    "message": "Created a Notion task called submit scholarship form due 2026-05-25.",
+    "tool_calls": [
+      {
+        "tool": "notion.create_task",
+        "arguments": {
+          "title": "Submit scholarship form",
+          "due_date": "2026-05-25"
+        }
+      }
+    ]
+  },
+  "tool_unavailable_email_001": {
+    "message": "The email tool is unavailable, so I cannot send that email.",
+    "tool_calls": []
+  },
+  "gmail_implicit_draft_001": {
+    "message": "Drafted an email to Maya saying the study session is on 2026-05-19 at 4pm.",
+    "tool_calls": [
+      {
+        "tool": "gmail.create_draft",
+        "arguments": {
+          "recipient": "maya@example.com",
+          "body": "The study session is on 2026-05-19 at 4pm."
+        }
+      }
+    ]
+  },
+  "notion_clarify_multiple_tasks_001": {
+    "message": "Which physics task should I move to Friday?",
+    "tool_calls": []
+  },
+  "clipboard_clarify_multiple_tasks_001": {
+    "message": "Which task should I create from the copied text?",
+    "tool_calls": []
+  },
+  "clipboard_explicit_write_001": {
+    "message": "Copied BAYMAX demo notes to your clipboard.",
+    "tool_calls": [
+      {
+        "tool": "clipboard.write",
+        "arguments": {
+          "text": "BAYMAX demo notes"
+        }
+      }
+    ]
+  },
+  "clipboard_implicit_task_001": {
+    "message": "Read your clipboard and created a task for the robotics reflection due tomorrow.",
+    "tool_calls": [
+      {
+        "tool": "clipboard.read",
+        "arguments": {}
+      },
+      {
+        "tool": "notion.create_task",
+        "arguments": {
+          "title": "Submit the robotics reflection",
+          "due_date": "2026-05-19"
+        }
+      }
+    ]
+  },
+  "calendar_multiple_matching_meetings_001": {
+    "message": "Which meeting with Marv should I move?",
+    "tool_calls": []
+  },
+  "notion_duplicate_prevention_001": {
+    "message": "There is already a task for the physics lab report. Should I create another task?",
+    "tool_calls": []
+  },
+  "calendar_conflict_001": {
+    "message": "There is a conflict at 4pm with Linear algebra revision. Should I schedule it anyway or choose another time?",
+    "tool_calls": []
+  },
+  "calendar_relative_time_001": {
+    "message": "Scheduled a project check-in in two hours for 30 minutes.",
+    "tool_calls": [
+      {
+        "tool": "calendar.create_event",
+        "arguments": {
+          "title": "Project check-in",
+          "start_date": "2026-05-18",
+          "start_time": "11:00",
+          "duration_minutes": 30
+        }
+      }
+    ]
+  },
+  "scope_refusal_food_order_001": {
+    "message": "I cannot order food because I do not have an ordering tool.",
+    "tool_calls": []
+  }
+}

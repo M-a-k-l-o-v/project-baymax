@@ -1,0 +1,30 @@
+{
+  "id": "calendar_conflict_001",
+  "category": "calendar",
+  "difficulty": "contextual",
+  "description": "Ask for clarification when a new calendar event conflicts with an existing event.",
+  "user_input": "Schedule calculus revision tomorrow at 4pm for 1 hour.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["calendar.create_event"],
+  "initial_state": {
+    "calendar_events": [
+      {
+        "id": "evt_linear_algebra_001",
+        "title": "Linear algebra revision",
+        "start_date": "2026-05-19",
+        "start_time": "16:00",
+        "duration_minutes": 120
+      }
+    ]
+  },
+  "expected_behavior": {
+    "type": "clarification",
+    "question_contains": ["conflict", "4pm"]
+  },
+  "success_criteria": [
+    "tool_not_called",
+    "clarification_requested",
+    "conflict_identified"
+  ],
+  "tags": ["calendar", "conflict", "contextual"]
+}

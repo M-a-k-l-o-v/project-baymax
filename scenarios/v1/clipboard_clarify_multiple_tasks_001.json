@@ -1,0 +1,25 @@
+{
+  "id": "clipboard_clarify_multiple_tasks_001",
+  "category": "multi_tool",
+  "difficulty": "ambiguous",
+  "description": "Ask for clarification when copied text contains multiple possible tasks.",
+  "user_input": "Create a task from what I copied.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["clipboard.read", "notion.create_task"],
+  "initial_state": {
+    "clipboard": {
+      "text": "Finish ML assignment by Friday. Also email Omar the lecture notes tonight."
+    },
+    "notion_tasks": []
+  },
+  "expected_behavior": {
+    "type": "clarification",
+    "question_contains": ["which", "task"]
+  },
+  "success_criteria": [
+    "tool_not_called",
+    "clarification_requested",
+    "multiple_tasks_identified"
+  ],
+  "tags": ["system_clipboard", "clarification", "multiple_possible_tasks"]
+}
