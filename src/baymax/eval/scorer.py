@@ -95,9 +95,7 @@ def score_response(scenario: Scenario, response: AgentResponse) -> ScenarioScore
     argument_accuracy = _argument_accuracy(expected_behavior, response.tool_calls)
 
     hallucinated_tool_count = sum(1 for tool in actual_tools if tool not in available_tools)
-    hallucination_rate = (
-        hallucinated_tool_count / len(actual_tools) if actual_tools else 0.0
-    )
+    hallucination_rate = hallucinated_tool_count / len(actual_tools) if actual_tools else 0.0
 
     return ScenarioScore(
         task_success=not failure_reasons and argument_accuracy == 1.0,

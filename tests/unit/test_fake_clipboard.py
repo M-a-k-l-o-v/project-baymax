@@ -14,15 +14,11 @@ def test_read_returns_clipboard_text_without_mutating_state() -> None:
     assert result.success is True
     assert result.tool == "clipboard.read"
     assert result.data == {"text": "Finish ML assignment by Friday"}
-    assert adapter.export_state() == {
-        "clipboard": {"text": "Finish ML assignment by Friday"}
-    }
+    assert adapter.export_state() == {"clipboard": {"text": "Finish ML assignment by Friday"}}
 
 
 def test_write_replaces_clipboard_text() -> None:
-    adapter = FakeClipboardAdapter.from_initial_state(
-        {"clipboard": {"text": "Old clipboard text"}}
-    )
+    adapter = FakeClipboardAdapter.from_initial_state({"clipboard": {"text": "Old clipboard text"}})
 
     result = adapter.write(text="New clipboard text")
 

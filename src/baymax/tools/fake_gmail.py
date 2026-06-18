@@ -83,12 +83,10 @@ class FakeGmailAdapter:
             for message in initial_state.get("gmail_messages", [])
         ]
         drafts = [
-            GmailDraft.model_validate(draft)
-            for draft in initial_state.get("gmail_drafts", [])
+            GmailDraft.model_validate(draft) for draft in initial_state.get("gmail_drafts", [])
         ]
         sent_emails = [
-            SentEmail.model_validate(email)
-            for email in initial_state.get("sent_emails", [])
+            SentEmail.model_validate(email) for email in initial_state.get("sent_emails", [])
         ]
         return cls(
             contacts=contacts,
@@ -99,20 +97,15 @@ class FakeGmailAdapter:
 
     def export_state(self) -> dict[str, Any]:
         return {
-            "gmail_contacts": [
-                contact.model_dump(mode="json") for contact in self._contacts
-            ],
+            "gmail_contacts": [contact.model_dump(mode="json") for contact in self._contacts],
             "gmail_messages": [
-                message.model_dump(mode="json", exclude_none=True)
-                for message in self._messages
+                message.model_dump(mode="json", exclude_none=True) for message in self._messages
             ],
             "gmail_drafts": [
-                draft.model_dump(mode="json", exclude_none=True)
-                for draft in self._drafts
+                draft.model_dump(mode="json", exclude_none=True) for draft in self._drafts
             ],
             "sent_emails": [
-                email.model_dump(mode="json", exclude_none=True)
-                for email in self._sent_emails
+                email.model_dump(mode="json", exclude_none=True) for email in self._sent_emails
             ],
         }
 

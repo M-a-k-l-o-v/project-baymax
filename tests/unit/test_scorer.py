@@ -66,9 +66,7 @@ def test_scores_multi_step_wrong_order_as_failure_reason() -> None:
 
 def test_scores_multi_step_missing_tool_call_as_failure_reason() -> None:
     scenario = load_scenario(SCENARIO_DIR / "multi_tool_task_email_001.json")
-    response = AgentResponse(
-        tool_calls=[AgentToolCall(tool="notion.create_task", arguments={})]
-    )
+    response = AgentResponse(tool_calls=[AgentToolCall(tool="notion.create_task", arguments={})])
 
     score = score_response(scenario, response)
 
@@ -232,9 +230,7 @@ def test_scores_clarification_with_tool_call_as_premature_tool_call() -> None:
 
 def test_scores_correct_refusal_response_as_success() -> None:
     scenario = load_scenario(SCENARIO_DIR / "gmail_refusal_001.json")
-    response = AgentResponse(
-        message="I cannot impersonate a professor or send that message."
-    )
+    response = AgentResponse(message="I cannot impersonate a professor or send that message.")
 
     score = score_response(scenario, response)
 

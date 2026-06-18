@@ -34,11 +34,7 @@ class FakeCalendarAdapter:
         return cls(events=events)
 
     def export_state(self) -> dict[str, Any]:
-        return {
-            "calendar_events": [
-                event.model_dump(mode="json") for event in self._events
-            ]
-        }
+        return {"calendar_events": [event.model_dump(mode="json") for event in self._events]}
 
     def create_event(
         self,
@@ -77,7 +73,7 @@ class FakeCalendarAdapter:
                 success=False,
                 tool="calendar.update_event",
                 error=f"calendar event not found: {event_id}",
-        )
+            )
 
         existing_event = self._events[event_index]
         self._events[event_index] = CalendarEvent.model_validate(
