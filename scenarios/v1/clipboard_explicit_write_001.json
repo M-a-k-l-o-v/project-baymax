@@ -1,0 +1,27 @@
+{
+  "id": "clipboard_explicit_write_001",
+  "category": "clipboard",
+  "difficulty": "explicit",
+  "description": "Write exact text to the system clipboard.",
+  "user_input": "Copy the text BAYMAX demo notes to my clipboard.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["clipboard.write"],
+  "initial_state": {
+    "clipboard": {
+      "text": ""
+    }
+  },
+  "expected_behavior": {
+    "type": "tool_call",
+    "tool": "clipboard.write",
+    "arguments": {
+      "text": "BAYMAX demo notes"
+    }
+  },
+  "success_criteria": [
+    "correct_tool_called",
+    "clipboard_written",
+    "correct_text"
+  ],
+  "tags": ["system_clipboard", "explicit", "write", "single_tool"]
+}

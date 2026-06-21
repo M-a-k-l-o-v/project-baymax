@@ -1,0 +1,29 @@
+{
+  "id": "notion_duplicate_prevention_001",
+  "category": "notion",
+  "difficulty": "contextual",
+  "description": "Ask for confirmation or clarification before creating a duplicate Notion task.",
+  "user_input": "Add a task to finish the physics lab report by Friday.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["notion.create_task"],
+  "initial_state": {
+    "notion_tasks": [
+      {
+        "id": "task_physics_lab_001",
+        "title": "Finish physics lab report",
+        "status": "open",
+        "due_date": "2026-05-22"
+      }
+    ]
+  },
+  "expected_behavior": {
+    "type": "clarification",
+    "question_contains": ["already", "task"]
+  },
+  "success_criteria": [
+    "tool_not_called",
+    "clarification_requested",
+    "duplicate_detected"
+  ],
+  "tags": ["notion", "duplicate_prevention", "contextual"]
+}

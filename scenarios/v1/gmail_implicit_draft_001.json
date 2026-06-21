@@ -1,0 +1,29 @@
+{
+  "id": "gmail_implicit_draft_001",
+  "category": "gmail",
+  "difficulty": "implicit",
+  "description": "Draft an email that resolves relative date wording in the message body.",
+  "user_input": "Draft an email to maya@example.com saying the study session is tomorrow at 4pm.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["gmail.create_draft"],
+  "initial_state": {
+    "gmail_drafts": [],
+    "sent_emails": []
+  },
+  "expected_behavior": {
+    "type": "tool_call",
+    "tool": "gmail.create_draft",
+    "arguments": {
+      "recipient": "maya@example.com",
+      "body_contains": "2026-05-19"
+    }
+  },
+  "success_criteria": [
+    "correct_tool_called",
+    "draft_created",
+    "correct_recipient",
+    "correct_body",
+    "correct_date"
+  ],
+  "tags": ["gmail", "implicit", "create_draft", "single_tool"]
+}

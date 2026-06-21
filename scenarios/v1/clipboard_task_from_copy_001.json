@@ -1,0 +1,40 @@
+{
+  "id": "clipboard_task_from_copy_001",
+  "category": "multi_tool",
+  "difficulty": "multi_step",
+  "description": "Read copied text from the system clipboard and create a Notion task from it.",
+  "user_input": "Create a task from what I copied.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["clipboard.read", "notion.create_task"],
+  "initial_state": {
+    "clipboard": {
+      "text": "Finish ML assignment by Friday"
+    },
+    "notion_tasks": []
+  },
+  "expected_behavior": {
+    "type": "tool_calls",
+    "calls": [
+      {
+        "tool": "clipboard.read",
+        "arguments": {}
+      },
+      {
+        "tool": "notion.create_task",
+        "arguments": {
+          "title_contains": "ML assignment",
+          "due_date": "2026-05-22"
+        }
+      }
+    ]
+  },
+  "success_criteria": [
+    "correct_tool_call_order",
+    "correct_tools_called",
+    "clipboard_read",
+    "task_created",
+    "correct_title",
+    "correct_due_date"
+  ],
+  "tags": ["system_clipboard", "notion", "contextual", "multi_step"]
+}

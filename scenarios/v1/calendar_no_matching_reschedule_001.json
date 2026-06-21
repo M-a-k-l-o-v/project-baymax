@@ -1,0 +1,30 @@
+{
+  "id": "calendar_no_matching_reschedule_001",
+  "category": "calendar",
+  "difficulty": "contextual",
+  "description": "Ask for clarification when the requested calendar event is not present in initial state.",
+  "user_input": "Move my meeting with Tadashi to 5pm.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["calendar.update_event"],
+  "initial_state": {
+    "calendar_events": [
+      {
+        "id": "evt_marv_sync_001",
+        "title": "Meeting with Marv",
+        "start_date": "2026-05-18",
+        "start_time": "14:00",
+        "duration_minutes": 30
+      }
+    ]
+  },
+  "expected_behavior": {
+    "type": "clarification",
+    "question_contains": ["Tadashi", "meeting"]
+  },
+  "success_criteria": [
+    "tool_not_called",
+    "clarification_requested",
+    "missing_entity_identified"
+  ],
+  "tags": ["calendar", "contextual", "no_matching_entity", "clarification"]
+}

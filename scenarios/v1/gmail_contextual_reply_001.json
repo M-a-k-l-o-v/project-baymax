@@ -1,0 +1,37 @@
+{
+  "id": "gmail_contextual_reply_001",
+  "category": "gmail",
+  "difficulty": "contextual",
+  "description": "Draft a reply to a sender identified from existing Gmail state.",
+  "user_input": "Reply to Omar's latest email that I will send the notes tonight.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["gmail.create_draft"],
+  "initial_state": {
+    "gmail_messages": [
+      {
+        "id": "msg_omar_notes_001",
+        "sender_name": "Omar Ali",
+        "sender_email": "omar@example.com",
+        "subject": "Lecture notes",
+        "received_at": "2026-05-18T08:30:00Z"
+      }
+    ],
+    "gmail_drafts": [],
+    "sent_emails": []
+  },
+  "expected_behavior": {
+    "type": "tool_call",
+    "tool": "gmail.create_draft",
+    "arguments": {
+      "recipient": "omar@example.com",
+      "body_contains": "send the notes tonight"
+    }
+  },
+  "success_criteria": [
+    "correct_tool_called",
+    "draft_created",
+    "correct_recipient",
+    "correct_body"
+  ],
+  "tags": ["gmail", "contextual", "reply", "single_tool"]
+}

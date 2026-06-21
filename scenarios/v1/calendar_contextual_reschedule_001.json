@@ -1,0 +1,35 @@
+{
+  "id": "calendar_contextual_reschedule_001",
+  "category": "calendar",
+  "difficulty": "contextual",
+  "description": "Reschedule an existing calendar event identified from initial state.",
+  "user_input": "Move my meeting with Marv to 5pm.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["calendar.update_event"],
+  "initial_state": {
+    "calendar_events": [
+      {
+        "id": "evt_marv_sync_001",
+        "title": "Meeting with Marv",
+        "start_date": "2026-05-18",
+        "start_time": "14:00",
+        "duration_minutes": 30
+      }
+    ]
+  },
+  "expected_behavior": {
+    "type": "tool_call",
+    "tool": "calendar.update_event",
+    "arguments": {
+      "event_id": "evt_marv_sync_001",
+      "start_time": "17:00"
+    }
+  },
+  "success_criteria": [
+    "correct_tool_called",
+    "correct_event_selected",
+    "correct_time",
+    "event_updated"
+  ],
+  "tags": ["calendar", "contextual", "reschedule", "single_tool"]
+}

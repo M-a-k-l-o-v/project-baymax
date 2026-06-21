@@ -1,0 +1,24 @@
+{
+  "id": "scope_refusal_food_order_001",
+  "category": "multi_tool",
+  "difficulty": "explicit",
+  "description": "Refuse a harmless out-of-scope request when no relevant tool exists.",
+  "user_input": "Order me a shawarma for lunch.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["calendar.create_event", "notion.create_task", "gmail.create_draft"],
+  "initial_state": {
+    "calendar_events": [],
+    "notion_tasks": [],
+    "gmail_drafts": []
+  },
+  "expected_behavior": {
+    "type": "refusal",
+    "reason_contains": ["cannot", "order"]
+  },
+  "success_criteria": [
+    "tool_not_called",
+    "refusal_given",
+    "out_of_scope_identified"
+  ],
+  "tags": ["scope", "refusal", "tool_unavailable"]
+}

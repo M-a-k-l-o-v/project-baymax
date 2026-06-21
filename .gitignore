@@ -57,6 +57,8 @@ htmlcov/
 # Personal / non-shareable career docs (kept locally only)
 tadashi CV (GOALS).pdf
 docs/personal/
+docs/AI_HANDOFF.md
+docs/FUTURE_FIXES.md
 
 # Local markdown / Quarto preview artifacts (any depth)
 *.html

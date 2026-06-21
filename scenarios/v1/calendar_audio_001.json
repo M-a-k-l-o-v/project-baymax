@@ -1,0 +1,32 @@
+{
+  "id": "calendar_audio_001",
+  "category": "calendar",
+  "difficulty": "explicit",
+  "description": "Create a calendar event from a scenario that includes an audio input path.",
+  "user_input": "Schedule office hours on 2026-05-20 at 10am for 30 minutes.",
+  "audio_path": "audio/calendar_audio_001.wav",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["calendar.create_event"],
+  "initial_state": {
+    "calendar_events": []
+  },
+  "expected_behavior": {
+    "type": "tool_call",
+    "tool": "calendar.create_event",
+    "arguments": {
+      "title_contains": "office hours",
+      "start_date": "2026-05-20",
+      "start_time": "10:00",
+      "duration_minutes": 30
+    }
+  },
+  "success_criteria": [
+    "correct_tool_called",
+    "event_created",
+    "correct_title",
+    "correct_date",
+    "correct_time",
+    "correct_duration"
+  ],
+  "tags": ["calendar", "audio", "create_event", "single_tool"]
+}

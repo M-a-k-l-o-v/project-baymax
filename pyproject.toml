@@ -26,6 +26,7 @@ build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
+    "jsonschema>=4.25.0",
     "pyright>=1.1.410",
     "pytest>=8.4.2",
     "pytest-asyncio>=1.2.0",

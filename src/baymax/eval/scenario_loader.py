@@ -3,14 +3,45 @@
 from __future__ import annotations
 
 import json
+from dataclasses import dataclass
 from datetime import datetime
+from json import JSONDecodeError
 from pathlib import Path
 from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 
 ScenarioCategory = Literal["calendar", "notion", "gmail", "clipboard", "multi_tool"]
 ScenarioDifficulty = Literal["explicit", "implicit", "contextual", "ambiguous", "multi_step"]
+
+
+@dataclass(frozen=True)
+class ScenarioLoadFailure:
+    """One scenario file that failed to load."""
+
+    path: Path
+    error: Exception
+
+
+class ScenarioLoadError(RuntimeError):
+    """Raised when one or more scenario files fail to load."""
+
+    def __init__(self, failures: list[ScenarioLoadFailure]) -> None:
+        self.failures = failures
+        details = "\n".join(
+            f"  {failure.path}: {failure.error.__class__.__name__}: {failure.error}"
+            for failure in failures
+        )
+        super().__init__(f"Failed to load {len(failures)} scenario(s):\n{details}")
+
+
+class ExpectedToolCall(BaseModel):
+    """One expected tool call in a scenario."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    tool: str = Field(pattern=r"^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$")
+    arguments: dict[str, Any]
 
 
 class ToolCallExpectedBehavior(BaseModel):
@@ -21,6 +52,15 @@ class ToolCallExpectedBehavior(BaseModel):
     type: Literal["tool_call"]
     tool: str = Field(pattern=r"^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$")
     arguments: dict[str, Any]
+
+
+class ToolCallsExpectedBehavior(BaseModel):
+    """Expected behavior for scenarios where ordered tool calls are required."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    type: Literal["tool_calls"]
+    calls: list[ExpectedToolCall] = Field(min_length=2)
 
 
 class ClarificationExpectedBehavior(BaseModel):
@@ -56,7 +96,10 @@ class RefusalExpectedBehavior(BaseModel):
 
 
 ExpectedBehavior = Annotated[
-    ToolCallExpectedBehavior | ClarificationExpectedBehavior | RefusalExpectedBehavior,
+    ToolCallExpectedBehavior
+    | ToolCallsExpectedBehavior
+    | ClarificationExpectedBehavior
+    | RefusalExpectedBehavior,
     Field(discriminator="type"),
 ]
 
@@ -86,6 +129,13 @@ class Scenario(BaseModel):
             raise ValueError("available_tools entries must be unique")
         return values
 
+    @field_validator("current_time")
+    @classmethod
+    def current_time_must_include_timezone(cls, value: datetime) -> datetime:
+        if value.tzinfo is None or value.utcoffset() is None:
+            raise ValueError("current_time must include timezone information")
+        return value
+
     @field_validator("success_criteria")
     @classmethod
     def success_criteria_must_be_unique(cls, values: list[str]) -> list[str]:
@@ -113,4 +163,16 @@ def load_scenarios(directory: Path) -> list[Scenario]:
     """Load and validate all scenario JSON files in a directory."""
 
     scenario_paths = sorted(directory.glob("*.json"))
-    return [load_scenario(path) for path in scenario_paths]
+    scenarios: list[Scenario] = []
+    failures: list[ScenarioLoadFailure] = []
+
+    for path in scenario_paths:
+        try:
+            scenarios.append(load_scenario(path))
+        except (JSONDecodeError, ValidationError) as error:
+            failures.append(ScenarioLoadFailure(path=path, error=error))
+
+    if failures:
+        raise ScenarioLoadError(failures)
+
+    return scenarios
