@@ -1,5 +1,5 @@
 # ROADMAP — BAYMAX v1 and v2
-
+SECURITY NEEDS TO BE EVALUATED SYSTEM WIDE- email stuff etc
 **Drafted:** 2026-05-16
 **Working assumption:** 4.5 months full-time over summer (May 18 – Oct 1), then term-time + part-time job
 **Hard deadlines:** v1 demo Jul 26 · v2 demo Sep 6 · portfolio-ready Oct 1
