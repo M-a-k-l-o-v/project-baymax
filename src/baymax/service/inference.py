@@ -16,7 +16,14 @@ import os
 import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any
+from typing import TYPE_CHECKING, Any, TypeGuard, cast
+
+if TYPE_CHECKING:
+    from openai.types.chat import (
+        ChatCompletionMessageFunctionToolCall,
+        ChatCompletionMessageToolCallUnion,
+        ChatCompletionToolUnionParam,
+    )
 
 from baymax.core.contracts import (
     RequestComplexity,
@@ -268,13 +275,25 @@ class OpenAIBackend(InferenceBackend):
                 },
                 {"role": "user", "content": request.user_input},
             ],
-            tools=tool_definitions,
+            # DECISION: cast to the OpenAI SDK's union type. Our dicts are
+            # structurally valid ChatCompletionFunctionToolParam shapes, but
+            # pyright can't see that through plain dict literals. Cast keeps
+            # the helper function plain Python without forcing every call site
+            # to import the SDK's TypedDicts.
+            tools=cast("list[ChatCompletionToolUnionParam]", tool_definitions),
             tool_choice="auto",
             temperature=0,
         )
 
         message = response.choices[0].message
-        tool_calls = message.tool_calls or []
+        # DECISION: openai-python now distinguishes function tool calls from
+        # custom (non-function) tool calls in the response union. We only ever
+        # send function tools, so filter to that variant. Anything else is a
+        # protocol violation by the model — log and skip rather than crash.
+        raw_tool_calls = message.tool_calls or []
+        tool_calls: list[ChatCompletionMessageFunctionToolCall] = [
+            tc for tc in raw_tool_calls if _is_function_tool_call(tc)
+        ]
 
         input_tokens = response.usage.prompt_tokens if response.usage else 0
         output_tokens = response.usage.completion_tokens if response.usage else 0
@@ -395,6 +414,18 @@ class OpenAIBackend(InferenceBackend):
             output_tokens=output_tokens,
             cost_usd=cost,
         )
+
+
+def _is_function_tool_call(
+    tc: ChatCompletionMessageToolCallUnion,
+) -> TypeGuard[ChatCompletionMessageFunctionToolCall]:
+    """Narrow the SDK union to the function variant.
+
+    Used before accessing `.function` on a tool call. Custom (non-function)
+    tool calls have `.custom` instead and don't carry a name matching our
+    function-calling convention — we filter them out at the call site.
+    """
+    return getattr(tc, "type", None) == "function" and hasattr(tc, "function")
 
 
 def _infer_request_type_from_plan(plan: list[ToolCallStep]) -> RequestType:
