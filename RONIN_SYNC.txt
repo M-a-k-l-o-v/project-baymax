@@ -1,0 +1,124 @@
+RONIN SYNC — MEETING AGENDA
+Date: 2026-06-20 | Owner: Marv
+
+Format: WHAT · DECISION · IMPACT · WHY (my words)
+[L] = locked  [O] = open / discuss now  [V2] = deferred
+
+
+--- EXTRA : WE ARE REMOVING AUDIO, INPUT AS STR ONLY FOR NOW, OPEN FOR EXTENTION LATER
+
+===== TIER 1 — DECIDE NOW =====
+
+0. WALL-CLOCK / PER-TOOL TIMEOUTS  [O]
+   Current v1: `max_plan_steps` (count budget only — caps how many tool calls
+   a plan can have). NO wall-clock timeout enforced.
+   Question: when real adapters arrive (v2), do we want per-tool timeouts
+   declared by the adapter, or one global request-level timeout?
+   Why (me): named "timeout_cap" originally but it was actually a step count —
+   need a real time budget when network APIs are in play. Per-tool seems right
+   since some tools are fast (clipboard) and some slow (gmail send).
+   Decision: agree per-tool timeouts in v2, deferred for now.
+ ronin response - 
+   actual time should be taken into consideration
+   separate retry limits 
+   buffer for excess tool call ~5
+
+1. TRACE FORMAT  [O]
+   Options: OpenTelemetry vs custom JSON lines
+   Impact: shapes ADR 0006 + telemetry module
+   Why (me): need your input — affects your debugging of eval runs.
+   Leaning custom JSON for v1, OTel adds collector dependency we don't need yet.
+
+2. AMBIGUITY METRIC — how does scorer read error_type?  [O]
+   A: add `error_type: str | None` to AgentResponse (boundary change)
+   B: scorer correlates from telemetry trace_id (no boundary change)
+   Impact: A is cleaner; B keeps boundary minimal.
+   Why (me): "ability of the model to identify intent can be a measurable metric
+   going forward — if the model raises that error, we capture ambiguity-perception
+   across baselines." Precision/recall vs scenario.difficulty == "ambiguous".
+ ronin response - 
+   error context field 
+   
+
+===== TIER 2 — LOCKED, FYI =====
+
+3. AGENT OUTPUT = your AgentResponse exactly  [L]
+   Impact: AgentToolCall + AgentResponse duplicated in core/contracts.py
+   (core can't depend on eval). v2: move to shared baymax.types.
+   Why (me): boundary must match scorer to avoid serialisation drift.
+-- shape is open to change
+
+4. INTENT_ERROR removed from my ErrorType  [L]
+   Impact: lives in YOUR failure_reasons (wrong_tool_call, wrong_tool_order)
+   Why (me): "intent error can really only be measured in post in comparison
+   to scenario — how is this flagged as a system error?" Agent has no runtime
+   way to know.
+--- come back to this in the future
+
+5. AMBIGUOUS_REQUEST kept as ErrorType  [L]
+   Impact: agent sets BOTH error_type=AMBIGUOUS + response_type=CLARIFICATION
+   on the model's request_clarification meta-tool call.
+   Why (me): "if the model can bring up that error, we capture the ambiguity
+   perception of the model" — model self-reported signal = measurable capability.
+
+6. task_done vs task_success — distinct  [L]
+   Impact: task_success stays null in agent; YOUR scorer fills it post-hoc.
+   Why (me): "task is done but the agent hallucinated — does all the tool
+   calls the right way, but the expected outcome didn't actually happen.
+   Keep this distinct, task_success appended in post by test run."
+
+7. PRE-VALIDATION TELEMETRY (errors emitted BEFORE validation)  [L]
+   Impact: new metric category — "can model build a valid task_file from input?"
+   Why (me): "could show ability of the model to generate the necessary fields
+   from user request and turn it into substantial data — a further metric to
+   quantify if baseline or fine-tuned is comparable to GPT or Claude in task
+   understanding."
+ - we'll have a seperate file that will evaluate how the agent builds the task 
+
+8. STATE STORE = SQLite v1, Redis at v3 if multi-process  [L]
+   Why (me): "lets go for sqlite to catch up to late roadmap, Redis when v3."
+
+9. AUTH = env vars  [L]
+   Impact: telemetry redacts auth*/token*/key*/password*/secret*/authorization*
+   Why (me): "environment seems the more data-secure choice to me, prevent
+   leaving traces of sensitive data in writing that gets sent out of the device."
+
+10. task_id = hierarchical <run_id>.<scenario_id>.<phase_int>  [L]
+    Impact: v1 IDs all end .N.0 (degenerate); hierarchy ready for sub-tasks v2.
+    Why (me): "hierarchical."
+
+11. STREAMING = all-at-once for v1  [L]
+    Why (me): your eval runner doesn't benefit from streaming; defer to when
+    an interactive client matters.
+
+12. `_contains` ARGUMENT CONVENTION = eval-side only v1  [L]
+    Impact: my agent emits plain values; your scorer does substring matching.
+    Why (me): confirm v1, discuss v2.
+
+
+===== TIER 3 — DEFERRED, FLAGGING SO YOU DON'T BUILD AGAINST THEM =====
+
+13. SUB-TASK CHAINS (1.0 → 1.1)  [V2]
+    Why (me): "clarification not to exist as independent task but sub-tasks
+    or follow-up task — new task can inherit context properly." Incompatible
+    with your single-turn clarification scenarios.
+
+14. MULTI-PHASE TASKS (draft → verify → send)  [V2] -> [V3]
+    Why (me): "multiphase, any changes the user makes can produce a new task
+    inheriting context from original — gives model more info to work with."
+    Affects scenario format when real adapters arrive.
+
+15. REVERSIBILITY / ROLLBACK  [V2]
+    Decision locked: each tool adapter declares reversible: bool + undo_action().
+    Why (me): "most rigorous — for email, draft-first lets user review/clarify
+    before sending; multiphase task pattern."
+    Action for you v2: real-adapter base needs the reversible attribute.
+
+
+
+
+===== CRITICAL THREE IF SHORT ON TIME =====
+
+#1 trace format · #2 ambiguity metric mechanism · #16 schema/pydantic drift
+
+Everything else can move to DM.

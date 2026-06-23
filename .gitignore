@@ -55,10 +55,15 @@ htmlcov/
 !.env.example
 
 # Personal / non-shareable career docs (kept locally only)
-tadashi CV (GOALS).pdf
+tadashi CV (*).pdf
+tadashi CV (*).md
+tadashi CV (*).docx
+build_tadashi_word_doc.py
 docs/personal/
 docs/AI_HANDOFF.md
 docs/FUTURE_FIXES.md
+future_work/tadashi_2_motion_priors.md
+future_work/masters_program_targets.md
 
 # Local markdown / Quarto preview artifacts (any depth)
 *.html
