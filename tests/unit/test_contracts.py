@@ -20,6 +20,12 @@ from baymax.core.contracts import (
     ToolCallResult,
     ToolCallStep,
 )
+from baymax.eval.scorer import (
+    AgentResponse as EvalAgentResponse,
+)
+from baymax.eval.scorer import (
+    AgentToolCall as EvalAgentToolCall,
+)
 
 
 def _now() -> datetime:
@@ -54,16 +60,19 @@ def test_agent_response_with_tool_calls_and_message():
 
 
 def test_agent_response_matches_scorer_shape():
-    """Boundary smoke test: AgentResponse JSON shape must match what Ronin's
-    scorer expects. This guards against drift between core and eval.
-    """
-    response = AgentResponse(
+    """Core and eval AgentResponse models must remain mutually compatible."""
+
+    core_response = AgentResponse(
         tool_calls=[AgentToolCall(tool="calendar.create_event", arguments={"title": "x"})],
         message="hi",
     )
-    serialised = response.model_dump()
-    assert serialised.keys() == {"tool_calls", "message"}
-    assert serialised["tool_calls"][0].keys() == {"tool", "arguments"}
+    eval_response = EvalAgentResponse(
+        tool_calls=[EvalAgentToolCall(tool="calendar.create_event", arguments={"title": "x"})],
+        message="hi",
+    )
+
+    assert EvalAgentResponse.model_validate(core_response.model_dump()) == eval_response
+    assert AgentResponse.model_validate(eval_response.model_dump()) == core_response
 
 
 # ---------- TaskFile ----------

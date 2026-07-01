@@ -23,29 +23,54 @@ def test_loads_all_v1_scenarios() -> None:
     scenarios = load_scenarios(SCENARIO_DIR)
 
     assert {scenario.id for scenario in scenarios} == {
-        "calendar_audio_001",
+        "calendar_ambiguous_tonight_001",
+        "calendar_cancel_confirm_001",
         "calendar_clarify_time_001",
         "calendar_conflict_001",
         "calendar_contextual_reschedule_001",
         "calendar_create_001",
+        "calendar_invalid_duration_001",
+        "calendar_list_tomorrow_001",
         "calendar_multiple_matching_meetings_001",
         "calendar_no_matching_reschedule_001",
         "calendar_relative_time_001",
+        "calendar_timezone_create_001",
+        "calendar_update_duration_001",
         "clipboard_clarify_multiple_tasks_001",
         "clipboard_explicit_write_001",
         "clipboard_implicit_task_001",
+        "clipboard_read_only_001",
+        "clipboard_refusal_password_001",
+        "clipboard_replace_contextual_001",
         "clipboard_task_from_copy_001",
+        "clipboard_write_empty_001",
         "gmail_clarify_recipient_001",
+        "gmail_contextual_thread_reply_001",
         "gmail_create_draft_001",
         "gmail_contextual_reply_001",
+        "gmail_draft_vs_send_001",
         "gmail_implicit_draft_001",
+        "gmail_invalid_recipient_001",
         "gmail_refusal_001",
+        "gmail_search_sender_001",
+        "gmail_send_confirmation_001",
+        "gmail_send_email_001",
+        "multi_tool_calendar_email_001",
+        "multi_tool_calendar_notion_001",
+        "multi_tool_clarify_missing_email_001",
+        "multi_tool_clipboard_email_001",
         "multi_tool_task_email_001",
         "notion_clarify_multiple_tasks_001",
         "notion_contextual_complete_001",
         "notion_create_task_001",
+        "notion_delete_confirm_001",
         "notion_duplicate_prevention_001",
         "notion_explicit_create_001",
+        "notion_invalid_due_date_001",
+        "notion_list_due_tomorrow_001",
+        "notion_mark_done_no_match_001",
+        "notion_multi_create_two_tasks_001",
+        "notion_update_due_date_001",
         "scope_refusal_food_order_001",
         "tool_unavailable_email_001",
     }
@@ -74,13 +99,6 @@ def test_loads_refusal_scenario_without_tool_arguments() -> None:
     assert scenario.difficulty == "explicit"
     assert isinstance(scenario.expected_behavior, RefusalExpectedBehavior)
     assert scenario.expected_behavior.reason_contains == ["impersonate", "professor"]
-
-
-def test_loads_audio_path_scenario() -> None:
-    scenario = load_scenario(SCENARIO_DIR / "calendar_audio_001.json")
-
-    assert scenario.audio_path == "audio/calendar_audio_001.wav"
-    assert isinstance(scenario.expected_behavior, ToolCallExpectedBehavior)
 
 
 def test_loads_multi_step_scenario_with_ordered_tool_calls() -> None:

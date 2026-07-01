@@ -66,6 +66,10 @@ Format: WHAT · DECISION · IMPACT · WHY (my words)
    Why (me): "task is done but the agent hallucinated — does all the tool
    calls the right way, but the expected outcome didn't actually happen.
    Keep this distinct, task_success appended in post by test run."
+   Ronin response:
+   Agent can say task_done.
+   Scorer decides task_success.
+   Do not let the agent mark itself as successful in final eval metrics.
 
 7. PRE-VALIDATION TELEMETRY (errors emitted BEFORE validation)  [L]
    Impact: new metric category — "can model build a valid task_file from input?"

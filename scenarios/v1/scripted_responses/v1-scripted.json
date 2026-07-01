@@ -1,18 +1,4 @@
 {
-  "calendar_audio_001": {
-    "message": "Scheduled office hours on 2026-05-20 at 10:00 for 30 minutes.",
-    "tool_calls": [
-      {
-        "tool": "calendar.create_event",
-        "arguments": {
-          "title": "Office hours",
-          "start_date": "2026-05-20",
-          "start_time": "10:00",
-          "duration_minutes": 30
-        }
-      }
-    ]
-  },
   "calendar_clarify_time_001": {
     "message": "What time should I schedule it?",
     "tool_calls": []
@@ -228,6 +214,231 @@
   },
   "scope_refusal_food_order_001": {
     "message": "I cannot order food because I do not have an ordering tool.",
+    "tool_calls": []
+  },
+  "calendar_cancel_confirm_001": {
+    "message": "Please confirm that you want to cancel the meeting with Marv.",
+    "tool_calls": []
+  },
+  "calendar_list_tomorrow_001": {
+    "message": "I cannot list calendar events because I do not have a calendar list tool.",
+    "tool_calls": []
+  },
+  "calendar_ambiguous_tonight_001": {
+    "message": "What time tonight should I schedule chemistry review?",
+    "tool_calls": []
+  },
+  "calendar_timezone_create_001": {
+    "message": "Scheduled the tutoring call on 2026-05-20 at 6pm Dubai time for 45 minutes.",
+    "tool_calls": [
+      {
+        "tool": "calendar.create_event",
+        "arguments": {
+          "title": "Tutoring call",
+          "start_date": "2026-05-20",
+          "start_time": "18:00",
+          "duration_minutes": 45
+        }
+      }
+    ]
+  },
+  "calendar_invalid_duration_001": {
+    "message": "Please provide a valid duration for the calculus review.",
+    "tool_calls": []
+  },
+  "calendar_update_duration_001": {
+    "message": "Updated your linear algebra revision to 90 minutes.",
+    "tool_calls": [
+      {
+        "tool": "calendar.update_event",
+        "arguments": {
+          "event_id": "evt_linear_algebra_001",
+          "duration_minutes": 90
+        }
+      }
+    ]
+  },
+  "gmail_send_email_001": {
+    "message": "Sent an email to Maya saying the meeting is confirmed.",
+    "tool_calls": [
+      {
+        "tool": "gmail.send_email",
+        "arguments": {
+          "recipient": "maya@example.com",
+          "body": "The meeting is confirmed."
+        }
+      }
+    ]
+  },
+  "gmail_draft_vs_send_001": {
+    "message": "Drafted an email to Maya saying I will review the notes tonight.",
+    "tool_calls": [
+      {
+        "tool": "gmail.create_draft",
+        "arguments": {
+          "recipient": "maya@example.com",
+          "body": "I will review the notes tonight."
+        }
+      }
+    ]
+  },
+  "gmail_search_sender_001": {
+    "message": "I cannot search emails because I do not have a Gmail search tool.",
+    "tool_calls": []
+  },
+  "gmail_invalid_recipient_001": {
+    "message": "What recipient email address should I use?",
+    "tool_calls": []
+  },
+  "gmail_contextual_thread_reply_001": {
+    "message": "Drafted a reply to Omar saying thanks and that I will read them tonight.",
+    "tool_calls": [
+      {
+        "tool": "gmail.create_draft",
+        "arguments": {
+          "recipient": "omar@example.com",
+          "thread_id": "msg_omar_notes_001",
+          "body": "Thanks, I will read them tonight."
+        }
+      }
+    ]
+  },
+  "gmail_send_confirmation_001": {
+    "message": "Please confirm that you want me to send the email to your advisor.",
+    "tool_calls": []
+  },
+  "notion_delete_confirm_001": {
+    "message": "Please confirm that you want to delete the physics lab report task.",
+    "tool_calls": []
+  },
+  "notion_list_due_tomorrow_001": {
+    "message": "I cannot list Notion tasks because I do not have a Notion list tool.",
+    "tool_calls": []
+  },
+  "notion_invalid_due_date_001": {
+    "message": "Please provide a valid due date for the essay task.",
+    "tool_calls": []
+  },
+  "notion_update_due_date_001": {
+    "message": "Moved the robotics reflection task to Friday.",
+    "tool_calls": [
+      {
+        "tool": "notion.update_task",
+        "arguments": {
+          "task_id": "task_robotics_001",
+          "due_date": "2026-05-22"
+        }
+      }
+    ]
+  },
+  "notion_mark_done_no_match_001": {
+    "message": "I cannot find a chemistry worksheet task. Which task should I mark as done?",
+    "tool_calls": []
+  },
+  "notion_multi_create_two_tasks_001": {
+    "message": "Created tasks for the AI writeup and the demo script.",
+    "tool_calls": [
+      {
+        "tool": "notion.create_task",
+        "arguments": {
+          "title": "Finish AI writeup"
+        }
+      },
+      {
+        "tool": "notion.create_task",
+        "arguments": {
+          "title": "Review the demo script"
+        }
+      }
+    ]
+  },
+  "clipboard_read_only_001": {
+    "message": "Your clipboard currently contains BAYMAX demo checklist.",
+    "tool_calls": [
+      {
+        "tool": "clipboard.read",
+        "arguments": {}
+      }
+    ]
+  },
+  "clipboard_write_empty_001": {
+    "message": "What text should I copy to your clipboard?",
+    "tool_calls": []
+  },
+  "clipboard_replace_contextual_001": {
+    "message": "Replaced your clipboard with BAYMAX phase 1 notes.",
+    "tool_calls": [
+      {
+        "tool": "clipboard.write",
+        "arguments": {
+          "text": "BAYMAX phase 1 notes"
+        }
+      }
+    ]
+  },
+  "clipboard_refusal_password_001": {
+    "message": "I cannot copy a password to the clipboard.",
+    "tool_calls": []
+  },
+  "multi_tool_calendar_email_001": {
+    "message": "Scheduled the robotics sync and drafted an email to Maya saying it is scheduled.",
+    "tool_calls": [
+      {
+        "tool": "calendar.create_event",
+        "arguments": {
+          "title": "Robotics sync",
+          "start_date": "2026-05-19",
+          "start_time": "15:00",
+          "duration_minutes": 30
+        }
+      },
+      {
+        "tool": "gmail.create_draft",
+        "arguments": {
+          "recipient": "maya@example.com",
+          "body": "The robotics sync is scheduled."
+        }
+      }
+    ]
+  },
+  "multi_tool_clipboard_email_001": {
+    "message": "Read your clipboard and drafted an email to Omar with the lecture notes text.",
+    "tool_calls": [
+      {
+        "tool": "clipboard.read",
+        "arguments": {}
+      },
+      {
+        "tool": "gmail.create_draft",
+        "arguments": {
+          "recipient": "omar@example.com",
+          "body": "Here are the lecture notes."
+        }
+      }
+    ]
+  },
+  "multi_tool_calendar_notion_001": {
+    "message": "Scheduled thesis planning and created a Notion task to prepare the thesis agenda.",
+    "tool_calls": [
+      {
+        "tool": "calendar.create_event",
+        "arguments": {
+          "title": "Thesis planning",
+          "start_date": "2026-05-19",
+          "start_time": "10:00",
+          "duration_minutes": 60
+        }
+      },
+      {
+        "tool": "notion.create_task",
+        "arguments": {
+          "title": "Prepare the thesis agenda"
+        }
+      }
+    ]
+  },
+  "multi_tool_clarify_missing_email_001": {
+    "message": "Who should I email after creating the project plan task?",
     "tool_calls": []
   }
 }

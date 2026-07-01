@@ -1,0 +1,44 @@
+{
+  "id": "multi_tool_clipboard_email_001",
+  "category": "multi_tool",
+  "difficulty": "multi_step",
+  "description": "Read clipboard text and draft an email using it.",
+  "user_input": "Read my clipboard and draft an email to omar@example.com with that text.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["clipboard.read", "gmail.create_draft"],
+  "initial_state": {
+    "clipboard": {
+      "text": "Here are the lecture notes."
+    },
+    "gmail_contacts": [
+      {
+        "name": "Omar Ali",
+        "email": "omar@example.com"
+      }
+    ],
+    "gmail_drafts": []
+  },
+  "expected_behavior": {
+    "type": "tool_calls",
+    "calls": [
+      {
+        "tool": "clipboard.read",
+        "arguments": {}
+      },
+      {
+        "tool": "gmail.create_draft",
+        "arguments": {
+          "recipient": "omar@example.com",
+          "body_contains": "lecture notes"
+        }
+      }
+    ]
+  },
+  "success_criteria": [
+    "correct_tool_call_order",
+    "clipboard_read",
+    "draft_created",
+    "correct_recipient"
+  ],
+  "tags": ["multi_tool", "clipboard", "gmail", "multi_step"]
+}

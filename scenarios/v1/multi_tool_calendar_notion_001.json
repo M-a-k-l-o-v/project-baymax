@@ -1,0 +1,40 @@
+{
+  "id": "multi_tool_calendar_notion_001",
+  "category": "multi_tool",
+  "difficulty": "multi_step",
+  "description": "Create a calendar event and a matching Notion task.",
+  "user_input": "Schedule thesis planning tomorrow at 10am for 1 hour and create a Notion task to prepare the thesis agenda.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["calendar.create_event", "notion.create_task"],
+  "initial_state": {
+    "calendar_events": [],
+    "notion_tasks": []
+  },
+  "expected_behavior": {
+    "type": "tool_calls",
+    "calls": [
+      {
+        "tool": "calendar.create_event",
+        "arguments": {
+          "title_contains": "thesis planning",
+          "start_date": "2026-05-19",
+          "start_time": "10:00",
+          "duration_minutes": 60
+        }
+      },
+      {
+        "tool": "notion.create_task",
+        "arguments": {
+          "title_contains": "thesis agenda"
+        }
+      }
+    ]
+  },
+  "success_criteria": [
+    "correct_tool_call_order",
+    "event_created",
+    "task_created",
+    "correct_title"
+  ],
+  "tags": ["multi_tool", "calendar", "notion", "multi_step"]
+}

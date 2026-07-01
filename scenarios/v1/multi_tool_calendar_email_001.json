@@ -1,0 +1,47 @@
+{
+  "id": "multi_tool_calendar_email_001",
+  "category": "multi_tool",
+  "difficulty": "multi_step",
+  "description": "Create a calendar event and draft an email about it.",
+  "user_input": "Schedule a robotics sync tomorrow at 3pm for 30 minutes and draft an email to maya@example.com saying it is scheduled.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["calendar.create_event", "gmail.create_draft"],
+  "initial_state": {
+    "calendar_events": [],
+    "gmail_contacts": [
+      {
+        "name": "Maya Khan",
+        "email": "maya@example.com"
+      }
+    ],
+    "gmail_drafts": []
+  },
+  "expected_behavior": {
+    "type": "tool_calls",
+    "calls": [
+      {
+        "tool": "calendar.create_event",
+        "arguments": {
+          "title_contains": "robotics sync",
+          "start_date": "2026-05-19",
+          "start_time": "15:00",
+          "duration_minutes": 30
+        }
+      },
+      {
+        "tool": "gmail.create_draft",
+        "arguments": {
+          "recipient": "maya@example.com",
+          "body_contains": "scheduled"
+        }
+      }
+    ]
+  },
+  "success_criteria": [
+    "correct_tool_call_order",
+    "event_created",
+    "draft_created",
+    "correct_recipient"
+  ],
+  "tags": ["multi_tool", "calendar", "gmail", "multi_step"]
+}

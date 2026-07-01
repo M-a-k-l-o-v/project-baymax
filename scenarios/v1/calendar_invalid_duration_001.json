@@ -1,0 +1,22 @@
+{
+  "id": "calendar_invalid_duration_001",
+  "category": "calendar",
+  "difficulty": "ambiguous",
+  "description": "Ask for a valid duration when the request gives an impossible duration.",
+  "user_input": "Schedule a calculus review tomorrow at 2pm for 0 minutes.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["calendar.create_event"],
+  "initial_state": {
+    "calendar_events": []
+  },
+  "expected_behavior": {
+    "type": "clarification",
+    "question_contains": ["duration", "valid"]
+  },
+  "success_criteria": [
+    "tool_not_called",
+    "clarification_requested",
+    "valid_duration_requested"
+  ],
+  "tags": ["calendar", "invalid_argument", "clarification"]
+}

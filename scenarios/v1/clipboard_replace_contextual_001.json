@@ -1,0 +1,27 @@
+{
+  "id": "clipboard_replace_contextual_001",
+  "category": "clipboard",
+  "difficulty": "explicit",
+  "description": "Replace existing clipboard text with explicit new text.",
+  "user_input": "Replace my clipboard with BAYMAX phase 1 notes.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["clipboard.write"],
+  "initial_state": {
+    "clipboard": {
+      "text": "old copied text"
+    }
+  },
+  "expected_behavior": {
+    "type": "tool_call",
+    "tool": "clipboard.write",
+    "arguments": {
+      "text": "BAYMAX phase 1 notes"
+    }
+  },
+  "success_criteria": [
+    "correct_tool_called",
+    "clipboard_written",
+    "correct_text"
+  ],
+  "tags": ["clipboard", "write", "explicit"]
+}

@@ -1,0 +1,26 @@
+{
+  "id": "calendar_list_tomorrow_001",
+  "category": "calendar",
+  "difficulty": "explicit",
+  "description": "Refuse a read-only calendar listing request when no list tool is available.",
+  "user_input": "What calendar events do I have tomorrow?",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["calendar.create_event", "calendar.update_event"],
+  "initial_state": {
+    "calendar_events": [
+      {
+        "id": "evt_linear_algebra_001",
+        "title": "Linear algebra revision",
+        "start_date": "2026-05-19",
+        "start_time": "16:00",
+        "duration_minutes": 120
+      }
+    ]
+  },
+  "expected_behavior": {
+    "type": "refusal",
+    "reason_contains": ["cannot", "list"]
+  },
+  "success_criteria": ["tool_not_called", "refusal_requested"],
+  "tags": ["calendar", "read_only", "tool_unavailable"]
+}

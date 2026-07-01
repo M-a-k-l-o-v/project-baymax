@@ -1,0 +1,26 @@
+{
+  "id": "gmail_search_sender_001",
+  "category": "gmail",
+  "difficulty": "explicit",
+  "description": "Refuse an email search request when no Gmail search tool is available.",
+  "user_input": "Find emails from Omar about lecture notes.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["gmail.create_draft", "gmail.send_email"],
+  "initial_state": {
+    "gmail_messages": [
+      {
+        "id": "msg_omar_notes_001",
+        "sender_name": "Omar Ali",
+        "sender_email": "omar@example.com",
+        "subject": "Lecture notes",
+        "received_at": "2026-05-18T08:30:00Z"
+      }
+    ]
+  },
+  "expected_behavior": {
+    "type": "refusal",
+    "reason_contains": ["cannot", "search"]
+  },
+  "success_criteria": ["tool_not_called", "refusal_requested"],
+  "tags": ["gmail", "search", "tool_unavailable"]
+}

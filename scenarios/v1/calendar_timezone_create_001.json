@@ -1,11 +1,10 @@
 {
-  "id": "calendar_audio_001",
+  "id": "calendar_timezone_create_001",
   "category": "calendar",
   "difficulty": "explicit",
-  "description": "Create a calendar event from a scenario that includes an audio input path.",
-  "user_input": "Schedule office hours on 2026-05-20 at 10am for 30 minutes.",
-  "audio_path": "audio/calendar_audio_001.wav",
-  "current_time": "2026-05-18T09:00:00Z",
+  "description": "Create an event when the user includes explicit timezone wording.",
+  "user_input": "Schedule a Dubai time tutoring call on 2026-05-20 at 6pm for 45 minutes.",
+  "current_time": "2026-05-18T09:00:00+04:00",
   "available_tools": ["calendar.create_event"],
   "initial_state": {
     "calendar_events": []
@@ -14,10 +13,10 @@
     "type": "tool_call",
     "tool": "calendar.create_event",
     "arguments": {
-      "title_contains": "office hours",
+      "title_contains": "tutoring",
       "start_date": "2026-05-20",
-      "start_time": "10:00",
-      "duration_minutes": 30
+      "start_time": "18:00",
+      "duration_minutes": 45
     }
   },
   "success_criteria": [
@@ -28,5 +27,5 @@
     "correct_time",
     "correct_duration"
   ],
-  "tags": ["calendar", "audio", "create_event", "single_tool"]
+  "tags": ["calendar", "timezone", "create_event"]
 }
