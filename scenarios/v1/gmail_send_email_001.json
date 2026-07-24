@@ -1,0 +1,34 @@
+{
+  "id": "gmail_send_email_001",
+  "category": "gmail",
+  "difficulty": "explicit",
+  "description": "Send an email when the user clearly asks to send.",
+  "user_input": "Send an email to maya@example.com saying the meeting is confirmed.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["gmail.send_email"],
+  "initial_state": {
+    "gmail_contacts": [
+      {
+        "name": "Maya Khan",
+        "email": "maya@example.com"
+      }
+    ],
+    "gmail_drafts": [],
+    "sent_emails": []
+  },
+  "expected_behavior": {
+    "type": "tool_call",
+    "tool": "gmail.send_email",
+    "arguments": {
+      "recipient": "maya@example.com",
+      "body_contains": "meeting is confirmed"
+    }
+  },
+  "success_criteria": [
+    "correct_tool_called",
+    "email_sent",
+    "correct_recipient",
+    "correct_body"
+  ],
+  "tags": ["gmail", "send_email", "explicit"]
+}

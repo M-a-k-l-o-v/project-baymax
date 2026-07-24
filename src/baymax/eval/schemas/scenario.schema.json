@@ -42,9 +42,6 @@
       "format": "date-time",
       "pattern": ".*(Z|[+-][0-9]{2}:[0-9]{2})$"
     },
-    "audio_path": {
-      "type": "string"
-    },
     "available_tools": {
       "type": "array",
       "minItems": 1,

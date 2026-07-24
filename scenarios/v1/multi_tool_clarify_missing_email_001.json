@@ -1,0 +1,23 @@
+{
+  "id": "multi_tool_clarify_missing_email_001",
+  "category": "multi_tool",
+  "difficulty": "ambiguous",
+  "description": "Ask for recipient clarification before a multi-step request with an email.",
+  "user_input": "Create a task for the project plan and email them that I added it.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["notion.create_task", "gmail.create_draft"],
+  "initial_state": {
+    "notion_tasks": [],
+    "gmail_contacts": []
+  },
+  "expected_behavior": {
+    "type": "clarification",
+    "question_contains": ["who", "email"]
+  },
+  "success_criteria": [
+    "tool_not_called",
+    "clarification_requested",
+    "recipient_requested"
+  ],
+  "tags": ["multi_tool", "ambiguous", "clarification"]
+}

@@ -1,0 +1,25 @@
+{
+  "id": "clipboard_read_only_001",
+  "category": "clipboard",
+  "difficulty": "explicit",
+  "description": "Read clipboard contents without mutating state.",
+  "user_input": "What is currently copied to my clipboard?",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["clipboard.read"],
+  "initial_state": {
+    "clipboard": {
+      "text": "BAYMAX demo checklist"
+    }
+  },
+  "expected_behavior": {
+    "type": "tool_call",
+    "tool": "clipboard.read",
+    "arguments": {}
+  },
+  "success_criteria": [
+    "correct_tool_called",
+    "state_not_modified",
+    "clipboard_read"
+  ],
+  "tags": ["clipboard", "read_only", "no_mutation"]
+}

@@ -1,0 +1,35 @@
+{
+  "id": "notion_multi_create_two_tasks_001",
+  "category": "notion",
+  "difficulty": "multi_step",
+  "description": "Create two Notion tasks from one user request.",
+  "user_input": "Create tasks for finishing the AI writeup and reviewing the demo script.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["notion.create_task"],
+  "initial_state": {
+    "notion_tasks": []
+  },
+  "expected_behavior": {
+    "type": "tool_calls",
+    "calls": [
+      {
+        "tool": "notion.create_task",
+        "arguments": {
+          "title_contains": "AI writeup"
+        }
+      },
+      {
+        "tool": "notion.create_task",
+        "arguments": {
+          "title_contains": "demo script"
+        }
+      }
+    ]
+  },
+  "success_criteria": [
+    "correct_tool_call_order",
+    "correct_tools_called",
+    "correct_titles"
+  ],
+  "tags": ["notion", "create_task", "multi_step"]
+}

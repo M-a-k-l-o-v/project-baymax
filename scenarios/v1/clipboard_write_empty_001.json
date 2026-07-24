@@ -1,0 +1,24 @@
+{
+  "id": "clipboard_write_empty_001",
+  "category": "clipboard",
+  "difficulty": "ambiguous",
+  "description": "Ask what to copy when the user omits clipboard text.",
+  "user_input": "Copy this to my clipboard.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["clipboard.write"],
+  "initial_state": {
+    "clipboard": {
+      "text": ""
+    }
+  },
+  "expected_behavior": {
+    "type": "clarification",
+    "question_contains": ["what", "copy"]
+  },
+  "success_criteria": [
+    "tool_not_called",
+    "clarification_requested",
+    "content_requested"
+  ],
+  "tags": ["clipboard", "clarification", "missing_argument"]
+}

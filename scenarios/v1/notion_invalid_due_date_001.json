@@ -1,0 +1,22 @@
+{
+  "id": "notion_invalid_due_date_001",
+  "category": "notion",
+  "difficulty": "ambiguous",
+  "description": "Ask for a valid due date when the user gives an impossible date.",
+  "user_input": "Create a task to submit the essay by 2026-02-30.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["notion.create_task"],
+  "initial_state": {
+    "notion_tasks": []
+  },
+  "expected_behavior": {
+    "type": "clarification",
+    "question_contains": ["valid", "date"]
+  },
+  "success_criteria": [
+    "tool_not_called",
+    "clarification_requested",
+    "valid_date_requested"
+  ],
+  "tags": ["notion", "invalid_argument", "clarification"]
+}

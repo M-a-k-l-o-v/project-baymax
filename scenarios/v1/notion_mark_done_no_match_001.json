@@ -1,0 +1,29 @@
+{
+  "id": "notion_mark_done_no_match_001",
+  "category": "notion",
+  "difficulty": "contextual",
+  "description": "Ask for clarification when the requested Notion task does not exist.",
+  "user_input": "Mark the chemistry worksheet as done.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["notion.update_task"],
+  "initial_state": {
+    "notion_tasks": [
+      {
+        "id": "task_physics_lab_001",
+        "title": "Finish physics lab report",
+        "status": "open",
+        "due_date": "2026-05-22"
+      }
+    ]
+  },
+  "expected_behavior": {
+    "type": "clarification",
+    "question_contains": ["cannot find", "chemistry"]
+  },
+  "success_criteria": [
+    "tool_not_called",
+    "clarification_requested",
+    "task_identification_requested"
+  ],
+  "tags": ["notion", "no_matching_entity", "clarification"]
+}

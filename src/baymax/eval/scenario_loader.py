@@ -115,7 +115,6 @@ class Scenario(BaseModel):
     description: str = Field(min_length=1)
     user_input: str = Field(min_length=1)
     current_time: datetime
-    audio_path: str | None = None
     available_tools: list[str] = Field(min_length=1)
     initial_state: dict[str, Any]
     expected_behavior: ExpectedBehavior

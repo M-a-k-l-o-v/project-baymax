@@ -1,0 +1,22 @@
+{
+  "id": "calendar_ambiguous_tonight_001",
+  "category": "calendar",
+  "difficulty": "ambiguous",
+  "description": "Ask for a specific time when the user says tonight.",
+  "user_input": "Schedule chemistry review tonight for 1 hour.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["calendar.create_event"],
+  "initial_state": {
+    "calendar_events": []
+  },
+  "expected_behavior": {
+    "type": "clarification",
+    "question_contains": ["what time", "tonight"]
+  },
+  "success_criteria": [
+    "tool_not_called",
+    "clarification_requested",
+    "time_requested"
+  ],
+  "tags": ["calendar", "ambiguous_time", "clarification"]
+}

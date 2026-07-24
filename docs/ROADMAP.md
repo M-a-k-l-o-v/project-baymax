@@ -64,6 +64,13 @@ Phase 1 exit criteria (Jun 21):
 - Naive agent baseline numbers published in `BENCHMARKING.md`
 - One demo video (3 min) of a happy-path scenario
 
+Phase 1 scope note:
+- Scenario input is text-only. Audio input is deferred to a later v3/v4-style expansion.
+- Eval uses deterministic scoring for v1. LLM-as-judge scoring is deferred.
+- Trace data follows the implemented custom JSON-line telemetry shape, not OpenTelemetry.
+- Tool integrations use fake adapters only; real Notion, Calendar, Gmail, and clipboard APIs are deferred until fake-adapter evals are stable.
+- Clarification scenarios are single-turn and terminal in v1. Sub-task chains and multi-turn clarification follow-ups are deferred.
+
 ---
 
 ## Phase 2 — v1 polish + first trained model (Weeks 6-10: Jun 22 – Jul 26)

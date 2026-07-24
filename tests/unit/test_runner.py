@@ -31,9 +31,13 @@ def test_run_scenario_executes_and_scores_tool_call() -> None:
         ]
     )
 
-    result = run_scenario(scenario, response)
+    result = run_scenario(scenario, response, run_id="run_test")
 
     assert result.scenario_id == "calendar_create_001"
+    assert result.trace_id is None
+    assert result.task_id == "run_test.calendar_create_001.0"
+    assert result.latency_ms >= 0
+    assert result.cost_usd == 0.0
     assert result.score.task_success is True
     assert result.tool_results[0].success is True
     assert result.final_state["calendar_events"][0]["title"] == "Linear algebra revision"
@@ -91,10 +95,11 @@ def test_run_scenarios_uses_scripted_agent_responses() -> None:
         }
     )
 
-    results = run_scenarios([scenario], agent)
+    results = run_scenarios([scenario], agent, run_id="run_test")
 
     assert len(results) == 1
     assert results[0].scenario_id == "calendar_clarify_time_001"
+    assert results[0].task_id == "run_test.calendar_clarify_time_001.0"
     assert results[0].score.task_success is True
 
 

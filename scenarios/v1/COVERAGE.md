@@ -6,24 +6,22 @@ complete only when at least one committed scenario validates for that behavior.
 ## Calendar
 
 - [x] Calendar contextual scenario
-  - `calendar_contextual_reschedule_001`
+  - `calendar_contextual_reschedule_001`, `calendar_update_duration_001`
 - [x] Calendar clarification scenario
-  - `calendar_clarify_time_001`
+  - `calendar_clarify_time_001`, `calendar_cancel_confirm_001`, `calendar_ambiguous_tonight_001`
 - [x] Calendar explicit scenario
-  - `calendar_audio_001`
+  - `calendar_create_001`, `calendar_timezone_create_001`
 - [x] Calendar implicit scenario
   - `calendar_create_001`, `calendar_relative_time_001`
-- [x] Calendar audio-path scenario
-  - `calendar_audio_001`
 
 ## Gmail
 
 - [x] Gmail contextual scenario
-  - `gmail_contextual_reply_001`
+  - `gmail_contextual_reply_001`, `gmail_contextual_thread_reply_001`
 - [x] Gmail clarification scenario
-  - `gmail_clarify_recipient_001`
+  - `gmail_clarify_recipient_001`, `gmail_invalid_recipient_001`, `gmail_send_confirmation_001`
 - [x] Gmail explicit scenario
-  - `gmail_create_draft_001`
+  - `gmail_create_draft_001`, `gmail_send_email_001`, `gmail_draft_vs_send_001`
 - [x] Gmail implicit scenario
   - `gmail_implicit_draft_001`
 - [x] Gmail refusal scenario
@@ -32,11 +30,11 @@ complete only when at least one committed scenario validates for that behavior.
 ## Notion
 
 - [x] Notion contextual scenario
-  - `notion_contextual_complete_001`
+  - `notion_contextual_complete_001`, `notion_update_due_date_001`, `notion_mark_done_no_match_001`
 - [x] Notion clarification scenario
-  - `notion_clarify_multiple_tasks_001`
+  - `notion_clarify_multiple_tasks_001`, `notion_delete_confirm_001`, `notion_invalid_due_date_001`
 - [x] Notion explicit scenario
-  - `notion_explicit_create_001`
+  - `notion_explicit_create_001`, `notion_multi_create_two_tasks_001`
 - [x] Notion implicit scenario
   - `notion_create_task_001`
 
@@ -45,35 +43,35 @@ complete only when at least one committed scenario validates for that behavior.
 - [x] System clipboard contextual scenario
   - `clipboard_task_from_copy_001`
 - [x] System clipboard clarification scenario
-  - `clipboard_clarify_multiple_tasks_001`
+  - `clipboard_clarify_multiple_tasks_001`, `clipboard_write_empty_001`
 - [x] System clipboard explicit scenario
-  - `clipboard_explicit_write_001`
+  - `clipboard_explicit_write_001`, `clipboard_read_only_001`, `clipboard_replace_contextual_001`
 - [x] System clipboard implicit scenario
   - `clipboard_implicit_task_001`
 
 ## Cross-Tool Coverage
 
 - [x] Multi-step scenario
-  - `multi_tool_task_email_001`, `clipboard_task_from_copy_001`, `clipboard_implicit_task_001`
+  - `multi_tool_task_email_001`, `clipboard_task_from_copy_001`, `clipboard_implicit_task_001`, `multi_tool_calendar_email_001`, `multi_tool_clipboard_email_001`, `multi_tool_calendar_notion_001`, `notion_multi_create_two_tasks_001`
 - [x] Tool-unavailable scenario
-  - `tool_unavailable_email_001`
+  - `tool_unavailable_email_001`, `calendar_list_tomorrow_001`, `gmail_search_sender_001`, `notion_list_due_tomorrow_001`
 - [x] Multiple matching entities scenario
   - `calendar_multiple_matching_meetings_001`, `notion_clarify_multiple_tasks_001`
-- [ ] Timezone-sensitive scenario
-  - Example: schedule across explicit timezone wording.
-- [ ] Schema/loader drift check
-  - Example: tests prove committed schema and Pydantic loader stay aligned.
+- [x] Timezone-sensitive scenario
+  - `calendar_timezone_create_001`
+- [x] Schema/loader drift check
+  - `tests/unit/test_scenario_schema.py`, `tests/unit/test_scenario_loader.py`
 
 ## State Coverage
 
 - [x] Empty initial state scenario
-  - `calendar_create_001`, `calendar_audio_001`, `notion_create_task_001`
+  - `calendar_create_001`, `notion_create_task_001`, `calendar_timezone_create_001`
 - [x] Single matching entity scenario
   - `calendar_contextual_reschedule_001`, `notion_contextual_complete_001`
 - [x] Multiple matching entities scenario
   - `calendar_multiple_matching_meetings_001`, `notion_clarify_multiple_tasks_001`
 - [x] No matching entity scenario
-  - `calendar_no_matching_reschedule_001`
+  - `calendar_no_matching_reschedule_001`, `notion_mark_done_no_match_001`
 - [x] Duplicate existing entity scenario
   - `notion_duplicate_prevention_001`
 - [x] Conflicting entity scenario
@@ -91,10 +89,10 @@ complete only when at least one committed scenario validates for that behavior.
   - `gmail_clarify_recipient_001`
 - [x] Hallucination-rate scenario
   - `gmail_refusal_001`
-- [ ] Latency scenario
-  - Example: any scenario once the runner records elapsed time.
-- [ ] Cost scenario
-  - Example: any scenario once the runner records model/backend cost.
+- [x] Latency scenario
+  - `results/v1-baseline.json`
+- [x] Cost scenario
+  - `results/v1-baseline.json`
 
 ## Failure-Mode Coverage
 
@@ -106,26 +104,26 @@ complete only when at least one committed scenario validates for that behavior.
   - Example: tool execution fails, and the agent must not claim the action succeeded.
 - [x] Duplicate prevention scenario
   - `notion_duplicate_prevention_001`
-- [ ] Invalid argument scenario
-  - Example: agent must not call a tool with missing, malformed, or impossible arguments.
+- [x] Invalid argument scenario
+  - `calendar_invalid_duration_001`, `notion_invalid_due_date_001`, `gmail_invalid_recipient_001`, `clipboard_write_empty_001`
 
 ## Operation-Type Coverage
 
-- [ ] Delete/cancel scenario
-  - Example: cancel an existing calendar event or delete a draft/task.
-- [ ] Search/list scenario
-  - Example: list tasks due tomorrow or find emails from a sender.
-- [ ] Read-only no-mutation scenario
-  - Example: user asks what events they have tomorrow, and no state should be modified.
-- [ ] Draft-vs-send distinction scenario
-  - Example: distinguish "draft an email" from "send an email".
+- [x] Delete/cancel scenario
+  - `calendar_cancel_confirm_001`, `notion_delete_confirm_001`
+- [x] Search/list scenario
+  - `calendar_list_tomorrow_001`, `gmail_search_sender_001`, `notion_list_due_tomorrow_001`
+- [x] Read-only no-mutation scenario
+  - `clipboard_read_only_001`
+- [x] Draft-vs-send distinction scenario
+  - `gmail_draft_vs_send_001`
 
 ## Time and Conflict Coverage
 
 - [x] Relative time scenario
   - `calendar_relative_time_001`
-- [ ] Ambiguous time phrase scenario
-  - Example: "remind me tonight" should trigger clarification if no time rule exists.
+- [x] Ambiguous time phrase scenario
+  - `calendar_ambiguous_tonight_001`
 - [x] Calendar conflict scenario
   - `calendar_conflict_001`
 
@@ -133,8 +131,8 @@ complete only when at least one committed scenario validates for that behavior.
 
 - [x] Harmless out-of-scope request
   - `scope_refusal_food_order_001`
-- [ ] Destructive action confirmation scenario
-  - Example: user asks to delete/cancel something, and the agent should ask for confirmation if that is the product rule.
+- [x] Destructive action confirmation scenario
+  - `calendar_cancel_confirm_001`, `notion_delete_confirm_001`, `gmail_send_confirmation_001`
 
 ## Target
 

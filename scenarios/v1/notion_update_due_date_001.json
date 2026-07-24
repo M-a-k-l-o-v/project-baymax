@@ -1,0 +1,33 @@
+{
+  "id": "notion_update_due_date_001",
+  "category": "notion",
+  "difficulty": "contextual",
+  "description": "Update the due date of a single matching existing Notion task.",
+  "user_input": "Move the robotics reflection task to Friday.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["notion.update_task"],
+  "initial_state": {
+    "notion_tasks": [
+      {
+        "id": "task_robotics_001",
+        "title": "Submit robotics reflection",
+        "status": "open",
+        "due_date": "2026-05-19"
+      }
+    ]
+  },
+  "expected_behavior": {
+    "type": "tool_call",
+    "tool": "notion.update_task",
+    "arguments": {
+      "task_id": "task_robotics_001",
+      "due_date": "2026-05-22"
+    }
+  },
+  "success_criteria": [
+    "correct_tool_called",
+    "correct_task",
+    "correct_due_date"
+  ],
+  "tags": ["notion", "update_task", "contextual"]
+}

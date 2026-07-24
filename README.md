@@ -1,30 +1,32 @@
 # BAYMAX
 
-A locally-hostable personal-task agent, evaluated on a reproducible benchmark of scripted productivity scenarios. Built to AI Systems flagship standards — train + eval + deploy pipeline, real metrics, defensible under interview questioning.
+A locally-hostable personal-task agent, evaluated on a reproducible benchmark of scripted productivity scenarios. Built to AI Systems flagship standards: train + eval + deploy pipeline, real metrics, and defensible engineering decisions.
 
-**Status:** pre-Phase 0 (week of 2026-05-18). Repo is being restructured from its prior multi-prototype form. See [docs/ROADMAP.md](docs/ROADMAP.md) for phase plan.
+**Status:** Phase 1 eval baseline closeout. The v1 harness has 50 scenarios, fake adapters, deterministic scoring, scripted baseline output, and an OpenAI agent baseline output.
+
+See [docs/ROADMAP.md](docs/ROADMAP.md) for the full phase plan.
 
 ---
 
-## What this is
+## What This Is
 
-A single-process agent that:
+A single-process personal-task agent that:
 
-1. Accepts voice or text input describing a productivity task
-2. Selects and executes a sequence of tool calls against Notion, Google Calendar, Gmail, and the system clipboard
-3. Confirms or requests clarification
-4. Logs every action with a trace ID
+1. Accepts text input describing a productivity task.
+2. Selects and executes tool calls against Notion, Google Calendar, Gmail, and the system clipboard.
+3. Confirms, refuses, or requests clarification when needed.
+4. Logs actions with trace/task identifiers.
 
-The defining property of the project is the **eval suite**, not the agent itself: ≥100 scripted scenarios with measured task success rate, tool-call accuracy, hallucination rate, latency P50/P99, and cost per task. Every claim is reproducible from the repo.
+The defining property of the project is the eval suite, not the agent itself. BAYMAX measures task success, tool-call accuracy, argument accuracy, clarification/refusal accuracy, hallucination rate, latency, and cost per task.
 
-## What this is not
+## What This Is Not
 
-- Not a "general personal assistant"
-- Not a multi-agent orchestration framework
-- Not a thin wrapper around GPT-4 — the v1 deliverable includes a fine-tuned local model deployed via MLX
-- Not benchmarked only against itself
+- Not a general personal assistant.
+- Not a multi-agent orchestration framework.
+- Not a thin wrapper around a hosted model.
+- Not benchmarked only against itself.
 
-For the full anti-claims list and the research question this project answers, see [docs/PROBLEM.md](docs/PROBLEM.md).
+For the full anti-claims list and research question, see [docs/PROBLEM.md](docs/PROBLEM.md).
 
 ---
 
@@ -32,8 +34,8 @@ For the full anti-claims list and the research question this project answers, se
 
 | Name | Role | Owned modules |
 |---|---|---|
-| Marv | Person 1 | Agent core · Inference service · Telemetry |
-| Ronin | Person 2 | Eval harness · Training pipeline · Tool adapters |
+| Marv | Person 1 | Agent core, inference service, telemetry |
+| Ronin | Person 2 | Eval harness, training pipeline, tool adapters |
 
 Authoritative ownership rules and PR review protocol: [docs/OWNERSHIP.md](docs/OWNERSHIP.md).
 
@@ -43,85 +45,68 @@ Authoritative ownership rules and PR review protocol: [docs/OWNERSHIP.md](docs/O
 
 | Doc | Purpose |
 |---|---|
-| [docs/PROBLEM.md](docs/PROBLEM.md) | What we're building and why; v1/v2 done criteria |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design (scaffold with TODO blocks — owners fill in) |
+| [docs/PROBLEM.md](docs/PROBLEM.md) | What BAYMAX is building and why |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design and ownership boundaries |
 | [docs/OWNERSHIP.md](docs/OWNERSHIP.md) | Module ownership, PR rules, conflict resolution |
-| [docs/ROADMAP.md](docs/ROADMAP.md) | 4-phase plan, 19 weeks, weekly milestones |
-| [docs/decisions/](docs/decisions/) | ADRs (Architecture Decision Records) — one per significant choice |
-| [docs/BENCHMARKING.md](docs/BENCHMARKING.md) | Eval methodology and result tables (added in Phase 1) |
-| [future_work/](future_work/) | Briefs for re-scopings considered and parked (Options β and γ) |
+| [docs/ROADMAP.md](docs/ROADMAP.md) | Phase plan and milestones |
+| [docs/BENCHMARKING.md](docs/BENCHMARKING.md) | Eval methodology, commands, and Phase 1 results |
+| [docs/SCORING.md](docs/SCORING.md) | Deterministic scoring rules and failure reasons |
+| [docs/decisions/](docs/decisions/) | Architecture Decision Records |
+| [future_work/](future_work/) | Parked scope ideas |
 
 ---
 
-## Target repo layout
+## Quick Start
 
-This is the structure being established in Phase 0. The current state on disk differs — see ROADMAP Phase 0 for the migration plan.
+Install dependencies:
 
-```
-BAYMAX/
-├── README.md                    ← this file
-├── pyproject.toml               ← single dependency manifest
-├── .env.example
-├── .github/workflows/           ← lint + typecheck + test on every PR
-├── docs/
-│   ├── PROBLEM.md
-│   ├── ARCHITECTURE.md
-│   ├── OWNERSHIP.md
-│   ├── ROADMAP.md
-│   ├── BENCHMARKING.md
-│   ├── decisions/               ← ADRs
-│   └── diagrams/
-├── src/
-│   └── baymax/
-│       ├── core/                ← agent loop, tool-call contract, state machine  (Marv)
-│       ├── service/             ← FastAPI, inference backend abstraction          (Marv)
-│       ├── telemetry/           ← logging, traces, cost tracker                   (Marv)
-│       ├── eval/                ← scenarios, runner, metrics, judge protocol     (Ronin)
-│       ├── models/              ← data prep, SFT/LoRA, model registry             (Ronin)
-│       └── tools/               ← Notion, Gmail, Calendar, clipboard adapters    (Ronin)
-├── scenarios/
-│   ├── v1/                      ← 50 scripted scenarios for v1
-│   └── v2/                      ← +150 for v2
-├── experiments/                 ← training runs, config snapshots
-├── results/                     ← versioned eval result JSONs
-├── tests/
-│   ├── unit/
-│   └── integration/
-├── scripts/
-│   └── run_benchmarks.sh
-└── future_work/                 ← parked re-scopings (β, γ)
+```powershell
+uv sync --frozen --all-groups
 ```
 
+Run checks:
+
+```powershell
+uv run ruff format --check
+uv run ruff check .
+uv run pyright
+uv run pytest
+```
+
+Run the scripted baseline:
+
+```powershell
+python -m baymax.eval.cli run-scripted `
+  --scenarios scenarios\v1 `
+  --responses scenarios\v1\scripted_responses\v1-scripted.json `
+  --output results\v1-baseline.json
+```
+
+Run the OpenAI agent baseline:
+
+```powershell
+$env:OPENAI_API_KEY="your_api_key"
+python -m baymax.eval.cli run-agent-openai `
+  --scenarios scenarios\v1 `
+  --output results\v1-agent-openai.json `
+  --model gpt-4o-mini
+```
+
+Phase 1 result files are committed under `results/`.
+
 ---
 
-## Quick start
+## Phase 1 Outputs
 
-> Not yet runnable. Phase 0 (week of 2026-05-18) establishes the scaffolding. Phase 1 (May 25 – Jun 21) produces the first end-to-end baseline.
+| File | Purpose |
+|---|---|
+| [results/v1-baseline.json](results/v1-baseline.json) | Deterministic scripted baseline over 50 scenarios |
+| [results/v1-agent-openai.json](results/v1-agent-openai.json) | OpenAI agent baseline over the same 50 scenarios |
 
-When Phase 1 is complete, this section will document:
-
-- Setup (`uv sync` or equivalent)
-- Required env vars (Notion, Google APIs, OpenAI/Anthropic API keys)
-- How to run the eval harness against a baseline
-- How to run a single scenario end-to-end
-
----
-
-## Why this exists
-
-Two students breaking into AI engineering need a flagship project that signals real engineering depth, not breadth. This project is sized and scoped to be defensible under senior-engineer questioning: every metric is reproducible, every module has clear ownership, every decision has an ADR. The discipline matters more than the surface area.
-
-The full strategic rationale lives outside the repo. The non-negotiable rules that shape this project:
-
-1. No fake metrics
-2. No vague AI branding
-3. No weak features taking space from stronger ones
-4. No "I built this" for code the human cannot defend line-by-line
-5. AI as leverage, not substitution — humans own architecture, core algorithms, and debugging
+The OpenAI baseline currently reaches `0.52` task success. Its main failure mode is acting when it should clarify, refuse, or wait for confirmation.
 
 ---
 
 ## License
 
-[MIT](LICENSE) — Marv and Ronin, 2026.
-# test
+[MIT](LICENSE) - Marv and Ronin, 2026.

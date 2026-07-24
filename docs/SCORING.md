@@ -2,9 +2,9 @@
 
 This document tracks the Phase 1 scoring rules for BAYMAX eval scenarios.
 
-The scorer starts simple and deterministic. It compares an agent response against
-the expected behavior in a scenario. Fake adapter execution and model judging come
-later.
+The scorer is deterministic. It compares an agent response against the expected
+behavior in a scenario. The runner also executes tool calls against fake adapters
+and records `tool_results` and `final_state`; LLM-as-judge scoring is deferred.
 
 ## Current Scoring Rules
 
@@ -51,11 +51,8 @@ scenario's `available_tools`.
 
 ### Task Success
 
-For the current scorer slice, task success is true only when there are no tool
-selection or ordering failure reasons and argument accuracy is `1.0`.
-
-Future scorer work will also require correct arguments, clarification behavior,
-refusal behavior, and adapter execution results before marking task success true.
+Task success is true only when there are no failure reasons and argument
+accuracy is `1.0`.
 
 ### Argument Accuracy
 
@@ -86,16 +83,6 @@ result:   correct
 For multi-step scenarios, arguments are scored by ordered expected tool call. If
 an expected tool call is missing, its argument checks score `0`.
 
-## Current Failure Reasons
-
-- `wrong_tool_order`: The right tools were selected but not in the expected order.
-- `missing_tool_call`: The agent made fewer tool calls than expected.
-- `extra_tool_call`: The agent made more tool calls than expected.
-- `hallucinated_tool_call`: The agent called a tool not listed in `available_tools`.
-- `wrong_tool_call`: The agent called the wrong tool for one or more expected positions.
-
-## Planned Scoring Work
-
 ### Clarification Accuracy
 
 Clarification accuracy applies only to scenarios whose expected behavior is
@@ -116,6 +103,19 @@ Refusal accuracy applies only to scenarios whose expected behavior is `refusal`.
 
 The score is the number of matched required keywords divided by the number of
 required keywords. If a tool is called, refusal accuracy is `0.0`.
+
+## Current Failure Reasons
+
+- `wrong_tool_order`: The right tools were selected but not in the expected order.
+- `missing_tool_call`: The agent made fewer tool calls than expected.
+- `extra_tool_call`: The agent made more tool calls than expected.
+- `hallucinated_tool_call`: The agent called a tool not listed in `available_tools`.
+- `wrong_tool_call`: The agent called the wrong tool for one or more expected positions.
+- `missing_clarification`: The expected clarification was not asked.
+- `missing_refusal`: The expected refusal was not provided.
+- `premature_tool_call`: The agent called a tool when it should have clarified or refused.
+
+## Planned Scoring Work
 
 ### Entity Grounding
 
@@ -143,9 +143,10 @@ Potential future failure reasons:
 - `hallucinated_state`
 - `hallucinated_success`
 
-### Adapter Execution Results
+### Deeper Adapter Outcome Scoring
 
-Once fake adapters exist, scoring should include adapter outcomes.
+Fake adapters are already executed by the runner. Future scoring should inspect
+adapter outcomes more deeply.
 
 Examples:
 
@@ -155,7 +156,9 @@ Examples:
 - validation error
 - tool execution failed
 
-The agent must not claim success when the adapter reports failure.
+The agent must not claim success when the adapter reports failure. Future
+failure reasons may distinguish validation failure, execution failure, and
+hallucinated success.
 
 ## Non-Goals for the First Scorer
 

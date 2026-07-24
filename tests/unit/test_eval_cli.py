@@ -47,7 +47,13 @@ def test_run_scripted_cli_writes_result_json(tmp_path: Path) -> None:
     assert result["scenario_count"] == 1
     assert result["aggregate_metrics"]["task_success_rate"] == 1.0
     assert result["scenario_results"][0]["scenario_id"] == "calendar_clarify_time_001"
+    assert result["scenario_results"][0]["trace_id"] is None
+    assert result["scenario_results"][0]["task_id"].endswith(".calendar_clarify_time_001.0")
+    assert result["scenario_results"][0]["latency_ms"] >= 0
+    assert result["scenario_results"][0]["cost_usd"] == 0.0
     assert result["scenario_results"][0]["score"]["task_success"] is True
+    assert result["aggregate_metrics"]["average_latency_ms"] >= 0
+    assert result["aggregate_metrics"]["total_cost_usd"] == 0.0
     assert result["benchmark_config"] == {
         "runner": "scripted",
         "uses_fake_adapters": True,
@@ -78,3 +84,5 @@ def test_run_scripted_cli_creates_output_parent_directory(tmp_path: Path) -> Non
     assert output_path.exists()
     assert result["scenario_count"] == 0
     assert result["aggregate_metrics"]["task_success_rate"] is None
+    assert result["aggregate_metrics"]["average_latency_ms"] is None
+    assert result["aggregate_metrics"]["total_cost_usd"] == 0.0

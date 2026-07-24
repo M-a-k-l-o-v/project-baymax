@@ -1,0 +1,22 @@
+{
+  "id": "gmail_invalid_recipient_001",
+  "category": "gmail",
+  "difficulty": "ambiguous",
+  "description": "Ask for a valid recipient when the email address is malformed.",
+  "user_input": "Email maya saying I finished the outline.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["gmail.create_draft", "gmail.send_email"],
+  "initial_state": {
+    "gmail_contacts": []
+  },
+  "expected_behavior": {
+    "type": "clarification",
+    "question_contains": ["recipient", "email"]
+  },
+  "success_criteria": [
+    "tool_not_called",
+    "clarification_requested",
+    "recipient_requested"
+  ],
+  "tags": ["gmail", "invalid_recipient", "clarification"]
+}

@@ -1,0 +1,34 @@
+{
+  "id": "calendar_update_duration_001",
+  "category": "calendar",
+  "difficulty": "contextual",
+  "description": "Update the duration of a specific existing calendar event.",
+  "user_input": "Make my linear algebra revision 90 minutes instead.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["calendar.update_event"],
+  "initial_state": {
+    "calendar_events": [
+      {
+        "id": "evt_linear_algebra_001",
+        "title": "Linear algebra revision",
+        "start_date": "2026-05-19",
+        "start_time": "16:00",
+        "duration_minutes": 120
+      }
+    ]
+  },
+  "expected_behavior": {
+    "type": "tool_call",
+    "tool": "calendar.update_event",
+    "arguments": {
+      "event_id": "evt_linear_algebra_001",
+      "duration_minutes": 90
+    }
+  },
+  "success_criteria": [
+    "correct_tool_called",
+    "correct_event",
+    "correct_duration"
+  ],
+  "tags": ["calendar", "update_event", "contextual"]
+}

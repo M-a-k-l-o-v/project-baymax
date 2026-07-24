@@ -1,0 +1,35 @@
+{
+  "id": "gmail_draft_vs_send_001",
+  "category": "gmail",
+  "difficulty": "explicit",
+  "description": "Create a draft instead of sending when the user asks to draft.",
+  "user_input": "Draft an email to maya@example.com saying I will review the notes tonight.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["gmail.create_draft", "gmail.send_email"],
+  "initial_state": {
+    "gmail_contacts": [
+      {
+        "name": "Maya Khan",
+        "email": "maya@example.com"
+      }
+    ],
+    "gmail_drafts": [],
+    "sent_emails": []
+  },
+  "expected_behavior": {
+    "type": "tool_call",
+    "tool": "gmail.create_draft",
+    "arguments": {
+      "recipient": "maya@example.com",
+      "body_contains": "review the notes tonight"
+    }
+  },
+  "success_criteria": [
+    "correct_tool_called",
+    "draft_created",
+    "email_not_sent",
+    "correct_recipient",
+    "correct_body"
+  ],
+  "tags": ["gmail", "draft_vs_send", "explicit"]
+}

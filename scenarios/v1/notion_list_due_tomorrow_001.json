@@ -1,0 +1,25 @@
+{
+  "id": "notion_list_due_tomorrow_001",
+  "category": "notion",
+  "difficulty": "explicit",
+  "description": "Refuse a Notion list request when no list tool is available.",
+  "user_input": "List my Notion tasks due tomorrow.",
+  "current_time": "2026-05-18T09:00:00Z",
+  "available_tools": ["notion.create_task", "notion.update_task"],
+  "initial_state": {
+    "notion_tasks": [
+      {
+        "id": "task_robotics_001",
+        "title": "Submit robotics reflection",
+        "status": "open",
+        "due_date": "2026-05-19"
+      }
+    ]
+  },
+  "expected_behavior": {
+    "type": "refusal",
+    "reason_contains": ["cannot", "list"]
+  },
+  "success_criteria": ["tool_not_called", "refusal_requested"],
+  "tags": ["notion", "list", "tool_unavailable"]
+}
