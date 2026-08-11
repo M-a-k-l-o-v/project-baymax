@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterator, Sequence
+from pathlib import Path
 from typing import overload
 
 import pytest
@@ -163,8 +164,22 @@ def test_summarize_external_dataset_handles_dict_like_dataset_wrapper() -> None:
     ]
 
 
-def test_summarize_external_dataset_handles_huggingface_iterable_dataset_dict() -> None:
+def test_summarize_external_dataset_handles_huggingface_iterable_dataset_dict(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("HF_HOME", str(tmp_path / "hf-home"))
+    monkeypatch.setenv("HF_DATASETS_CACHE", str(tmp_path / "hf-datasets"))
     from datasets import IterableDataset, IterableDatasetDict
+    from datasets import config as datasets_config
+
+    monkeypatch.setattr(datasets_config, "HF_DATASETS_CACHE", str(tmp_path / "hf-datasets"))
+    monkeypatch.setattr(
+        datasets_config,
+        "DOWNLOADED_DATASETS_PATH",
+        str(tmp_path / "hf-datasets" / "downloads"),
+    )
+    monkeypatch.setattr(datasets_config, "HF_MODULES_CACHE", str(tmp_path / "hf-modules"))
 
     def rows() -> Iterator[dict[str, object]]:
         yield {"query": "Schedule study", "answers": [{"name": "create_event"}]}

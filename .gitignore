@@ -52,6 +52,11 @@ htmlcov/
 # Generated Phase 2 training-data artifacts
 data/sft/
 
+# Generated model checkpoints/adapters
+models/*
+!models/models.json
+tmp/
+
 # Environment and local config
 .env
 .env.*

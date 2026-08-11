@@ -173,6 +173,7 @@ async def run_agent_scenario(
         task_id=f"{run_id}.{scenario.id}.0",
         latency_ms=latency_ms,
         cost_usd=float(trace_summary.get("cost_usd", 0.0)),
+        agent_response=response,
         score=score,
         tool_results=dispatcher.tool_results,
         final_state=dispatcher.export_state(),

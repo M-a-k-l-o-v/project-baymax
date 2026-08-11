@@ -23,6 +23,7 @@ FailureReason = Literal[
     "missing_refusal",
     "premature_tool_call",
     "wrong_tool_call",
+    "wrong_argument",
 ]
 
 
@@ -93,6 +94,13 @@ def score_response(scenario: Scenario, response: AgentResponse) -> ScenarioScore
             failure_reasons.append("missing_refusal")
 
     argument_accuracy = _argument_accuracy(expected_behavior, response.tool_calls)
+    if _has_argument_failure(
+        expected_tools=expected_tools,
+        actual_tools=actual_tools,
+        expected_behavior=expected_behavior,
+        argument_accuracy=argument_accuracy,
+    ):
+        failure_reasons.append("wrong_argument")
 
     hallucinated_tool_count = sum(1 for tool in actual_tools if tool not in available_tools)
     hallucination_rate = hallucinated_tool_count / len(actual_tools) if actual_tools else 0.0
@@ -229,6 +237,26 @@ def _count_correct_argument_checks(
             correct_checks += 1
 
     return correct_checks
+
+
+def _has_argument_failure(
+    *,
+    expected_tools: list[str],
+    actual_tools: list[str],
+    expected_behavior: object,
+    argument_accuracy: float,
+) -> bool:
+    if not isinstance(
+        expected_behavior,
+        (ToolCallExpectedBehavior, ToolCallsExpectedBehavior),
+    ):
+        return False
+    if argument_accuracy == 1.0:
+        return False
+    if len(actual_tools) < len(expected_tools):
+        return False
+
+    return actual_tools[: len(expected_tools)] == expected_tools
 
 
 def _tool_call_failure_reasons(
