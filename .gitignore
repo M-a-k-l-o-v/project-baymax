@@ -49,6 +49,9 @@ archive/
 htmlcov/
 *.log
 
+# Generated Phase 2 training-data artifacts
+data/sft/
+
 # Environment and local config
 .env
 .env.*
@@ -62,6 +65,8 @@ build_tadashi_word_doc.py
 docs/personal/
 docs/AI_HANDOFF.md
 docs/FUTURE_FIXES.md
+docs/PHASE2_ARCHITECTURE.md
+docs/training_data_and_eval_playbook.pdf
 future_work/tadashi_2_motion_priors.md
 future_work/masters_program_targets.md
 
