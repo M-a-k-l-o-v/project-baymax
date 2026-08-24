@@ -1,145 +1,106 @@
-# Deferred Scope — Things Pushed to Future Phases
+# DEFERRED — Known limitations of the stepping-stone artifact
 
-Source: design discussion 2026-06-17 between Marv and Claude during tool-call contract design.
+**Framing (2026-08-24)**: BAYMAX ships as a stepping-stone learning artifact per [PROJECT.md](PROJECT.md). This file documents what's INTENTIONALLY NOT in scope, so anyone reviewing the repo understands the artifact honestly.
 
-This file captures features, patterns, and decisions intentionally pushed to later versions to keep v1 shippable. Each entry includes the trigger (when to revisit) and notes the rationale.
+Not "future work we're planning" — **not-implemented-and-not-planned** for this project. Previously framed as "deferred to v2/v3"; that framing implied continued development. That's not happening — the project ships at stepping-stone scope and Marv moves on.
 
-When a v2 / v3 milestone arrives, re-read this file and decide what to lift back into scope.
+If any of these ever get built, it would be a NEW project reusing BAYMAX's architecture as a foundation, not a continuation.
 
 ---
 
-## Deferred to v2 (post-Phase 1 ship; tentative Phase 3-4 work)
+## Not in the shipped artifact
 
-### Sub-task chains (parent-child task IDs)
-- **Pattern**: Clarification follow-ups create child tasks (e.g., 1.0 → 1.1). Retry creates child tasks. Child inherits parent context.
-- **Why deferred**: Ronin's Phase 1 scenarios are single-turn; expected_behavior `clarification` is terminal. Multi-turn flows would break scorer assumptions.
-- **Revisit when**: Multi-turn scenarios are designed (Phase 3 v2 expansion).
+### Real API integrations
+- **Real Google Calendar / Notion / Gmail / system clipboard adapters** — fake in-memory adapters only. No OAuth, no real API auth, no rate limits, no network flakiness handling.
+- **Consequence**: BAYMAX cannot be used as a daily-driver assistant. Any successful eval scenario has zero real-world effect.
 
-### Multi-phase tasks (verify-first for irreversible tools)
-- **Pattern**: Tools that cannot be undone (real `gmail.send_email`) get wrapped in a draft-then-verify-then-send sequence. The verification step is a sub-task.
-- **Why deferred**: Requires sub-task model (above) AND real adapters. v1 fakes are always reversible, so the pattern isn't load-bearing yet.
-- **Revisit when**: Real `gmail.send_email` adapter ships, OR scenarios start including irreversible-tool tests.
+### Larger model
+- **Only Qwen 2.5 1.5B + LoRA and OpenAI (gpt-4o-mini) supported.** Larger local models (Qwen 7B, Llama 3.1 8B, etc.) not integrated. Anthropic backend class placeholder mentioned in ADR 0011 but not implemented.
+- **Consequence**: fine-tune quality ceiling is small-model tier. Cannot demonstrate what a 7B fine-tune would achieve without additional work.
 
-### Multi-turn user sessions
-- **Pattern**: User and agent exchange multiple turns; agent maintains conversational state across the session.
-- **Why deferred**: Phase 1 eval is single-turn request → response.
-- **Revisit when**: Phase 3 v2 expansion adds multi-turn scenarios.
+### State persistence
+- **In-memory state only per request.** SQLite state store designed in ADR 0007 but never implemented. Redis considered for future scale, never implemented.
+- **Consequence**: no idempotency across requests, no cross-run history query, no audit/replay of past runs.
 
-### LLM-as-judge for ambiguous scenarios
-- **Pattern**: Scenarios marked `difficulty: ambiguous` use an LLM to score semantic equivalence rather than strict matching.
-- **Why deferred**: Ronin's v1 scorer is explicitly deterministic. SCORING.md lists "no LLM-as-judge" as a v1 non-goal.
-- **Revisit when**: Ronin opens an ADR for the judge protocol (planned ADR 0008).
+### Multi-turn dialog
+- **Single-turn only.** No conversational memory across user turns within a session.
+- **Consequence**: cannot handle "book another meeting like the one yesterday" or clarification follow-ups that create sub-tasks.
 
-### Context inheritance across sub-tasks
-- **Pattern**: When a sub-task (retry, clarification follow-up) is created, it inherits parent's context plus gets new context (timeout error, retry reason).
-- **Why deferred**: Depends on sub-task chains (above).
-- **Revisit when**: Sub-tasks are implemented.
+### Streaming inference
+- **All-at-once responses.** No token-by-token streaming to caller.
+- **Consequence**: latency feels awkward for interactive use; fine for batch eval.
 
-### Real-API tool adapters (not just fakes)
-- **Pattern**: Real Notion / Google Calendar / Gmail / system clipboard integrations replacing the in-memory fakes.
-- **Why deferred**: v1 uses fakes deliberately for determinism and speed. Real adapters introduce rate limits, auth, and network flakiness.
-- **Revisit when**: Eval baseline numbers are stable on fakes AND there's a use case for real-world testing.
+### LLM-as-judge scoring
+- **Deterministic scoring only.** ADR 0008 designed the judge protocol; implementation deferred and now not planned.
+- **Consequence**: cannot score ambiguous scenarios where multiple tool-call sequences would be valid.
 
-### Hallucinated entity / state / success detection in scorer
-- **Pattern**: Detect when agent invents email addresses, contacts, calendar events, Notion tasks that don't exist in `initial_state`. Detect when agent claims success without supporting tool execution.
-- **Why deferred**: Ronin's SCORING.md flags these as "Planned Scoring Work" — not in v1.
-- **Revisit when**: Ronin starts the planned scorer expansion. Marv's `task_done` vs `task_success` distinction is the architectural hook for this.
-
-### Pre-validation telemetry consumed by Ronin's scorer
-- **Pattern**: Marv's agent emits telemetry for failed-task_file-construction events. Currently logged but not scored.
-- **Why deferred**: Cross-team coordination work. Marv's contract supports it; Ronin's scorer doesn't yet consume it.
-- **Revisit when**: Scoring work expands per `hallucinated_*` flag above.
-
-### Per-tool cost accounting (real-API quotas)
-- **Pattern**: Some real APIs (Notion, Gmail) have per-call costs or quotas. RunCost should track per-tool spend, not just aggregate.
-- **Why deferred**: Real adapters needed first.
-- **Revisit when**: Real adapters ship.
+### Sub-task chains / multi-phase task modeling
+- **Single-task-per-request.** No parent-child task hierarchy, no draft-then-verify-then-send workflow for irreversible actions.
+- **Consequence**: agent cannot handle irreversible-tool patterns (like real Gmail send with verification gate).
 
 ### Cancellation / barge-in mid-tool-call
-- **Pattern**: User can abort a tool call while it's in flight (not just between tool calls).
-- **Why deferred**: Roadmap labels this "optional stretch" for Phase 3.
-- **Revisit when**: Phase 3 multi-turn work or earlier if streaming inference design forces it.
+- **No mid-flight cancellation.**
+- **Consequence**: user request that changes mind mid-execution has no clean abort path.
 
 ### Wall-clock / per-tool timeouts
-- **Pattern**: v1 has `max_plan_steps` (step-count budget only). v2 needs real time budgets — likely per-tool timeouts declared by the adapter, not a single global request-level timeout (different tools have different time profiles).
-- **Why deferred**: v1 fakes return in microseconds — no meaningful time risk.
-- **Revisit when**: Real adapters arrive (Phase 3+). Add `timeout_seconds: float` to the adapter contract, enforce via dispatcher with a deadline.
+- **Only `max_plan_steps` (step-count budget).** No real time budgets on tool calls.
+- **Consequence**: fake adapters return in microseconds so no meaningful timeout risk; would matter for real adapters.
 
-### Streaming response (response_text + optional tool_call events)
-- **Pattern**: Stream the agent's response text as model generates tokens; optionally emit tool_call events as each tool executes.
-- **Why deferred**: v1 client = Ronin's eval runner, which doesn't benefit from streaming. Adds complexity for no v1 value.
-- **Revisit when**: Interactive client added (CLI / web UI / voice frontend). Phase 2-3 likely.
+### OpenTelemetry / distributed tracing
+- **Custom ndjson traces only.** OTel migration considered in ADR 0006, not implemented.
+- **Consequence**: no cross-service trace correlation; single-process traces only. Fine at BAYMAX's scale.
 
-### Sensitivity-based verification gate (beyond just reversibility)
-- **Pattern**: Verification flag triggered not only by `reversible: false` but also by per-scenario or per-arg-value sensitivity (e.g., calendar event with CEO; email to legal counsel).
-- **Why deferred**: v1's reversibility-only rule covers the irreversible-tool case. Sensitivity gating is real-world UX polish.
-- **Revisit when**: Real-API adapters in use and user-facing UX matters.
+### Deployment / production infrastructure
+- **`uvicorn` manual start.** No launchd, no menu bar app, no Docker image, no cloud deployment, no health-check integration with any orchestrator.
+- **Consequence**: not usable as a persistent background service without additional wrapping.
 
-### `_contains` agent-emit support
-- **Pattern**: Agent could emit partial-match values when uncertain (e.g., `body_contains: "...thanks"` when only partially confident of phrasing).
-- **Why deferred**: v1 agent emits plain values; eval-side handles partial matching. Pending v2 conversation with Ronin.
-- **Revisit when**: Discussing v2 contract evolution with Ronin.
+### Hallucinated entity / success detection
+- **Basic scorer only.** Not detecting when agent invents email addresses / contacts / calendar events not in `initial_state`. Not detecting when agent claims success without supporting tool execution.
+- **Consequence**: scoring is trustworthy for what it measures; blind to hallucination categories.
 
-### Multi-phase task modeling (versioned task_File vs sub-task chain)
-- **Pattern**: Multi-phase tasks (e.g., gmail.create_draft → verify → send_with_draft_id) need either (a) versioned mutable task_File or (b) sub-task chain with context inheritance.
-- **Why deferred**: v1 fakes are atomic; multi-phase pattern doesn't ship until real adapters and irreversible-tool support.
-- **Revisit when**: Designing irreversible-tool real-adapter integration in v2.
+### Per-tool cost accounting for real APIs
+- **Aggregate cost tracking only.** No per-tool spend attribution against real API quotas.
+- **Consequence**: doesn't apply since no real APIs; would matter if real adapters ever ship.
 
----
-
-## Deferred to v3 (post-v2; production-grade)
-
-### Redis state store (multi-process / multi-machine support)
-- **Pattern**: Move from SQLite (v1) to Redis when state needs to be shared across processes or machines.
-- **Why deferred**: Single-machine SQLite handles v1-v2 needs. Redis adds Docker complexity unnecessarily early.
-- **Revisit when**: First time you need two BAYMAX processes (e.g., separate web/API frontend, scheduler, or multi-user deployment).
-
-### Distributed eval runs
-- **Pattern**: Run eval scenarios in parallel across multiple worker processes / machines for throughput.
-- **Why deferred**: 200 scenarios sequentially is tolerable. Distribution adds infrastructure cost.
-- **Revisit when**: Scenario count crosses ~500 OR per-scenario cost crosses a threshold.
-
-### Real-time multi-machine deployment
-- **Pattern**: Production-grade serving with load balancing, health checks, autoscaling.
-- **Why deferred**: BAYMAX is single-user personal-assistant scope. Multi-user is post-v3.
-- **Revisit when**: Project pivots to multi-user OR open-source release with multiple deployments.
+### Sensitivity-based verification (beyond just reversibility)
+- **Basic reversible/irreversible flag only** (designed in ADR 0009, not implemented since fakes are always reversible).
+- **Consequence**: no per-scenario or per-arg sensitivity gating.
 
 ---
 
-## Decisions still open (not yet deferred — Marv to lock)
+## Publication-review discipline items — dropped
 
-### Trace format choice
-- **Question**: OpenTelemetry vs custom JSON?
-- **Blocks**: ADR 0006
-- **Status**: discuss with Ronin (he may use traces for eval debugging)
+Removed 2026-08-24 as publication-review overhead that no longer fits the stepping-stone scope:
 
-## Decisions locked 2026-06-17/18
+- Bootstrapped 95% CI reporting requirement on aggregate metrics
+- Pre-registered failure criterion per experiment
+- 4-tier eval structure (compositional held-out, adversarial subset)
+- Retry sensitivity sweep infrastructure (configurable N via env var, eval at multiple N values)
+- Ablation sweep across LoRA rank / data mix / instruction template — reduced to "one basic variant, optional" per revised ROADMAP
+- Formal experiment pre-registration files under `docs/experiments/`
 
-- **Verification flag**: always-on for irreversible tools (adapter declares `reversible: bool` + `requires_verification: bool`, the latter auto-set when reversible is false). Sensitivity-based refinement deferred to v2.
-- **task_id format**: hierarchical `<task_int>.<phase_int>`, e.g. `1.0`, `1.1`. For Phase 1 single-turn, all IDs are `N.0`. Consider prefixing with `run_id` for cross-session uniqueness.
-- **Auth model**: environment variables, adapters fetch credentials directly. Telemetry must redact auth_*/token/key/password fields (belongs in telemetry ADR).
-- **`_contains` convention scope (v1)**: eval-side only — agent emits plain values, Ronin's scorer handles substring matching. v2 discussion pending.
-- **Streaming response (v1)**: all-at-once. Eval runner doesn't benefit from streaming. Streaming deferred to v2 when interactive clients matter (added to v2 deferral list below).
-- **Multi-phase task model**: v1 doesn't implement multi-phase. For v2, two viable paths (versioned task_File OR sub-task with context inheritance). Marv's preference: single conceptual task with cumulative context. Final modeling choice deferred to v2. v1 must NOT preclude either path (keep hierarchical task_id, don't bake "single mutable task" assumptions into task_File class).
+Basic statistical honesty (sample size disclosed with every headline number) is retained.
 
 ---
 
-## Career / non-project deferrals (already tracked elsewhere)
+## Architecture that WOULD support building any of the above
 
-These are not BAYMAX-scope but listed so they're not forgotten:
+If Marv or someone else ever wanted to un-defer any of the above, BAYMAX's architecture is designed to allow it cleanly:
 
-- **TADASHI-2 motion priors flagship** — target window: Master's M2 (2028-2029). See [future_work/tadashi_2_motion_priors.md](../future_work/tadashi_2_motion_priors.md) (gitignored, local).
-- **Master's program applications** — apply Jan-Mar 2027 for Sept 2027 start. See [future_work/masters_program_targets.md](../future_work/masters_program_targets.md) (gitignored, local).
-- **ML foundations summer self-study** — Jul-Sep 2026, see [docs/personal/marv_ml_summer_prep.md](personal/marv_ml_summer_prep.md) (gitignored, local).
-- **Outreach cadence** — 5 high-quality reaches per week. Target list to build Sept-Dec 2026.
+- Real adapter integration → matches the existing tool-adapter interface (ADR 0009 reversibility contract)
+- Larger model → new backend class in the factory dict (ADR 0011)
+- SQLite state store → schema defined in ADR 0007
+- Multi-turn → hierarchical task_id already in v1 (ADR 0002)
+- Streaming → additive method on backend (ADR 0011 §A5)
+- LLM-as-judge → ADR 0008 defines the protocol
+
+That extensibility is part of the artifact's engineering value. It's not going to be exercised by this project.
 
 ---
 
-## How to use this file
+## Career / non-project deferrals (tracked elsewhere)
 
-- **At v2 kickoff**: read top section, decide which v2-deferred items are in scope
-- **At v3 kickoff**: same for v3 section
-- **Whenever an "open decision" gets locked**: move it to its ADR and delete from the "open decisions" section here
-- **Whenever a new deferral happens**: add to the appropriate section with rationale
-
-This file is the project's source of truth for "things we know we'd do later." If something doesn't appear here AND isn't in active ADRs, it doesn't exist as a future commitment.
+- **TADASHI-1 flagship** — see `future_work/tadashi_1_flagship.md` (gitignored)
+- **Marbles-1 replication** — see `future_work/marbles_1_frequency_diffusion_vla.md` (gitignored)
+- **open3d reconstruction** — see `future_work/open3d_world_recon_and_action_sim.md` (gitignored)
+- **Master's application prep** — see `future_work/masters_program_targets.md` (gitignored)

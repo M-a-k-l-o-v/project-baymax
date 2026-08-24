@@ -64,7 +64,14 @@ PII/auth redaction per [ADR 0010](0010-telemetry.md) §redaction is applied at e
 
 ## Reasoning
 
-[TODO Marv: write 3-5 sentences in your voice explaining WHY ndjson over OTel for v1, WHY the event categories you chose, WHY redaction at emission time (not later). Likely themes: zero infra is the point in v1 — the eval harness reads jsonl with `pandas.read_json(lines=True)`; OTel buys you cross-service correlation we don't need yet; event categories follow the agent loop boundaries from ADR 0001 so the trace tells the story of a request; redaction at emission removes the risk of a forgotten downstream filter leaking secrets. This section gets quoted under interview drilling.]
+[REASONING PROMPTS — expand each bullet into 1-2 sentences in your own voice. Documentation depth: brief, honest, readable in 6 months. Not interview-defensibility depth.]
+
+- **WHY ndjson over OpenTelemetry in v1**: zero new infrastructure is the point. The eval harness reads a `.jsonl` file with `pandas.read_json(lines=True)` — one line of code. OTel buys cross-service span correlation, but the v1 system is single-process; correlation doesn't need SDK-level machinery.
+- **WHY defer OTel to a v2/v3 trigger**: the migration cost when OTel arrives (multi-process eval sharding, or a distributed state store) is bounded — every emission site swaps from `logger.info(event=...)` to OTel spans. Paying that later is cheaper than running an OTel Collector daemon now for capability we don't consume.
+- **WHY event categories that follow the agent loop boundaries** (`request.received`, `task_file.constructed`, `validation.passed/failed`, `tool.dispatch.start/end`, `recovery.triggered`, `clarification.emitted`, `response.emitted`): the trace tells the STORY of a request stage by stage. If a scenario fails at "step 3," the trace should map back to a specific loop transition, not just "something errored." Categories = the loop's discrete states from ADR 0001.
+- **WHY redaction at emission time, not later**: one chokepoint that can't be bypassed by a forgotten downstream filter. If a new credential field is added next week and someone logs it, the emission-layer processor catches it before it hits disk. Doing redaction downstream means every consumer needs its own filter — inconsistent, error-prone, and one missing filter = leaked secret.
+- **WHY ndjson vs plain-text logs**: unstructured logs are fast to write and miserable to query. Ronin's eval harness needs to programmatically filter and aggregate events; that requires structure. The marginal cost of JSON over text is essentially zero and the queryability difference is huge.
+- **WHY ndjson vs database-backed events**: file-based ndjson is durable, append-only, trivially git-diffable, and trivially attachable to bug reports. A database couples telemetry to state-store lifecycle (rollbacks would lose trace data — the opposite of what you want during failure analysis).
 
 ---
 

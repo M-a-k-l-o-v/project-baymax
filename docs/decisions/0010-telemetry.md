@@ -57,7 +57,7 @@ The processor runs as the LAST step in structlog's chain, after all event constr
 
 ### Trace correlation
 
-`trace_id` is bound via `structlog.contextvars.bind_contextvars(trace_id=...)` at the start of each request. All subsequent events emitted in that request (across modules) automatically include the trace_id. The state store ([ADR 0007](0007-state-store.md)) joins traces to tasks via this id.
+`trace_id` is bound via `structlog.contextvars.bind_contextvars(trace_id=...)` at the start of each request. All subsequent events emitted in that request (across modules) automatically include the trace_id. When the state store ships in v2 ([ADR 0007](0007-state-store.md) — deferred as of 2026-06-23), it will join traces to tasks via this id. In v1 the join is done by grep/`jq` against the `traces.jsonl` file.
 
 ### Event shape
 
@@ -71,7 +71,14 @@ OTel format remains deferred to v2 pending Ronin discussion (per [RONIN_SYNC.txt
 
 ## Reasoning
 
-[TODO Marv: write 3-5 sentences in your voice explaining WHY structlog over stdlib logging or rolling our own, WHY redaction at the LAST step in the processor chain (not at the call site), WHY contextvars over passing trace_id through call signatures. Likely themes: structlog's processor chain gives you a single chokepoint for redaction that can't be bypassed by a forgotten log statement; redaction at emission removes the risk of "what if someone adds a new credential field next week?"; contextvars solve the correlation problem without polluting every function signature with trace_id; this is the kind of cross-cutting concern that should live in infrastructure, not application logic. This section gets quoted under interview drilling.]
+[REASONING PROMPTS — expand each bullet into 1-2 sentences in your own voice. Documentation depth: brief, honest, readable in 6 months.]
+
+- **WHY structlog over stdlib `logging`**: stdlib's model is "message + optional extra dict"; passing structured event payloads naturally is awkward. Custom formatters get ugly, and filters run BEFORE message construction in some paths, making redaction unreliable. Structlog is built specifically for structured events and processor pipelines.
+- **WHY structlog over rolling our own logger**: reimplements structlog badly. The only reason to roll our own would be if structlog had a limitation we hit — it doesn't. Mature, well-tested, right shape.
+- **WHY redaction at the LAST step in the processor chain, not at the call site**: single chokepoint that can't be bypassed by a forgotten log statement. If someone next week adds a new credential field to an event payload, it gets caught at emission — nobody has to remember to update N call sites. Redaction at the call site scales badly; every new field is a new opportunity to leak.
+- **WHY contextvars over passing `trace_id` through call signatures**: correlation is a cross-cutting concern, not an application-logic concern. Threading `trace_id` through every function signature pollutes the code with infrastructure detail and makes refactoring painful. Contextvars solve the correlation problem WITHOUT polluting call signatures — cleaner separation.
+- **WHY defer OTel to v2** (aligned with ADR 0006): the SDK is 30+ MB of dependency for capability we don't use in single-process v1. When OTel migration happens, structlog's processor chain swaps the final formatter for an OTel exporter — the emission sites are unaffected. Migration is bounded by design.
+- **WHY the specific redaction pattern list (`auth*`, `token*`, `key*`, `password*`, `secret*`, `authorization*`, `bearer*`)**: covers the credential fields that show up in adapter payloads and API responses. Not exhaustive — the list is reviewed quarterly as new adapters land (documented as an open question). Defensible baseline, not a claim of completeness.
 
 ---
 
