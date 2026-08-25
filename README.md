@@ -1,43 +1,41 @@
 # BAYMAX
 
-A locally-hostable personal-task agent, evaluated on a reproducible benchmark of scripted productivity scenarios. Built to AI Systems flagship standards: train + eval + deploy pipeline, real metrics, and defensible engineering decisions.
+A locally-runnable personal-task agent with an eval harness. Stepping-stone learning project — shipped as portfolio evidence of engineering + methodology discipline, not as a daily-driver assistant or research contribution.
 
-**Status:** Phase 1 eval baseline closeout. The v1 harness has 50 scenarios, fake adapters, deterministic scoring, scripted baseline output, and an OpenAI agent baseline output.
+**Status**: Phase 1 eval baseline shipped (50 scenarios, OpenAI + scripted baselines). Phase 2 in progress (MLX backend, LoRA fine-tune, output adapter). Target ship: end of September 2026.
 
-See [docs/ROADMAP.md](docs/ROADMAP.md) for the full phase plan.
+See [docs/PROJECT.md](docs/PROJECT.md) for the full "what BAYMAX is and isn't."
 
 ---
 
-## What This Is
+## What it does
 
-A single-process personal-task agent that:
+1. Accepts text input describing a productivity task
+2. Selects and executes tool calls against **fake** in-memory adapters (calendar / notion / gmail / clipboard)
+3. Confirms, refuses, or requests clarification
+4. Logs actions with trace / task identifiers
+5. Runs against a scripted eval suite; produces metrics JSON
 
-1. Accepts text input describing a productivity task.
-2. Selects and executes tool calls against Notion, Google Calendar, Gmail, and the system clipboard.
-3. Confirms, refuses, or requests clarification when needed.
-4. Logs actions with trace/task identifiers.
+## What it doesn't do (honest scope)
 
-The defining property of the project is the eval suite, not the agent itself. BAYMAX measures task success, tool-call accuracy, argument accuracy, clarification/refusal accuracy, hallucination rate, latency, and cost per task.
+- **No real API integration** — fake adapters only. Not connected to your real Google Calendar / Gmail / Notion.
+- **Not a daily-driver assistant** — response quality too low to trust for real actions
+- **No menu bar app / voice / chat UI** — REST endpoint only (`POST /invoke`)
+- **No context memory across requests** — each request stateless
+- **No streaming, no multi-turn dialog**
 
-## What This Is Not
-
-- Not a general personal assistant.
-- Not a multi-agent orchestration framework.
-- Not a thin wrapper around a hosted model.
-- Not benchmarked only against itself.
-
-For the full anti-claims list and research question, see [docs/PROBLEM.md](docs/PROBLEM.md).
+Full list in [docs/DEFERRED.md](docs/DEFERRED.md).
 
 ---
 
 ## Team
 
-| Name | Role | Owned modules |
-|---|---|---|
-| Marv | Person 1 | Agent core, inference service, telemetry |
-| Ronin | Person 2 | Eval harness, training pipeline, tool adapters |
+| Name | Owned modules |
+|---|---|
+| **Marv** | Agent core, inference service, backends (OpenAI + MLX), output adapter, telemetry |
+| **Ronin** | Eval harness, training pipeline, tool adapters (fake), scenario authorship |
 
-Authoritative ownership rules and PR review protocol: [docs/OWNERSHIP.md](docs/OWNERSHIP.md).
+Full ownership rules: [docs/OWNERSHIP.md](docs/OWNERSHIP.md).
 
 ---
 
@@ -45,28 +43,29 @@ Authoritative ownership rules and PR review protocol: [docs/OWNERSHIP.md](docs/O
 
 | Doc | Purpose |
 |---|---|
-| [docs/PROBLEM.md](docs/PROBLEM.md) | What BAYMAX is building and why |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design and ownership boundaries |
-| [docs/OWNERSHIP.md](docs/OWNERSHIP.md) | Module ownership, PR rules, conflict resolution |
-| [docs/ROADMAP.md](docs/ROADMAP.md) | Phase plan and milestones |
-| [docs/BENCHMARKING.md](docs/BENCHMARKING.md) | Eval methodology, commands, and Phase 1 results |
-| [docs/SCORING.md](docs/SCORING.md) | Deterministic scoring rules and failure reasons |
-| [docs/decisions/](docs/decisions/) | Architecture Decision Records |
-| [future_work/](future_work/) | Parked scope ideas |
+| [docs/PROJECT.md](docs/PROJECT.md) | What BAYMAX is (and isn't) — the framing doc |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design |
+| [docs/OWNERSHIP.md](docs/OWNERSHIP.md) | Module ownership + PR rules |
+| [docs/ROADMAP.md](docs/ROADMAP.md) | Timeline to ship (~5 weeks from 2026-08-24) |
+| [docs/BACKEND_FLOW.md](docs/BACKEND_FLOW.md) | Backend + agent design diagrams |
+| [docs/BENCHMARKING.md](docs/BENCHMARKING.md) | Eval methodology + results |
+| [docs/SCORING.md](docs/SCORING.md) | Deterministic scoring rules |
+| [docs/DEFERRED.md](docs/DEFERRED.md) | Known limitations + not-implemented items |
+| [docs/decisions/](docs/decisions/) | ADR archive |
 
 ---
 
-## Quick Start
+## Quick start
 
 Install dependencies:
 
-```powershell
+```bash
 uv sync --frozen --all-groups
 ```
 
 Run checks:
 
-```powershell
+```bash
 uv run ruff format --check
 uv run ruff check .
 uv run pyright
@@ -75,20 +74,20 @@ uv run pytest
 
 Run the scripted baseline:
 
-```powershell
-python -m baymax.eval.cli run-scripted `
-  --scenarios scenarios\v1 `
-  --responses scenarios\v1\scripted_responses\v1-scripted.json `
-  --output results\v1-baseline.json
+```bash
+python -m baymax.eval.cli run-scripted \
+  --scenarios scenarios/v1 \
+  --responses scenarios/v1/scripted_responses/v1-scripted.json \
+  --output results/v1-baseline.json
 ```
 
 Run the OpenAI agent baseline:
 
-```powershell
-$env:OPENAI_API_KEY="your_api_key"
-python -m baymax.eval.cli run-agent-openai `
-  --scenarios scenarios\v1 `
-  --output results\v1-agent-openai.json `
+```bash
+export OPENAI_API_KEY="your_api_key"
+python -m baymax.eval.cli run-agent-openai \
+  --scenarios scenarios/v1 \
+  --output results/v1-agent-openai.json \
   --model gpt-4o-mini
 ```
 
@@ -96,17 +95,18 @@ Phase 1 result files are committed under `results/`.
 
 ---
 
-## Phase 1 Outputs
+## Current results (Phase 1 baselines)
 
-| File | Purpose |
-|---|---|
-| [results/v1-baseline.json](results/v1-baseline.json) | Deterministic scripted baseline over 50 scenarios |
-| [results/v1-agent-openai.json](results/v1-agent-openai.json) | OpenAI agent baseline over the same 50 scenarios |
+| Backend | task_success_rate | scenarios |
+|---|---|---|
+| Scripted baseline | see `results/v1-baseline.json` | 50 |
+| gpt-4o-mini | **0.52** | 50 |
+| Qwen 1.5B + LoRA (smoke test) | 0.24 | 50 |
 
-The OpenAI baseline currently reaches `0.52` task success. Its main failure mode is acting when it should clarify, refuse, or wait for confirmation.
+Phase 2 will add: proper Qwen training runs (not smoke test), MLX backend integration, output adapter, expanded eval to ~200 scenarios. Fine-tune is EXPECTED to underperform baseline — honest characterization of transfer ceiling, not a project failure.
 
 ---
 
 ## License
 
-[MIT](LICENSE) - Marv and Ronin, 2026.
+[MIT](LICENSE) — Marv and Ronin, 2026.

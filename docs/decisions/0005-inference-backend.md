@@ -48,7 +48,14 @@ Each backend is responsible for translating the project's internal tool-call sha
 
 ## Reasoning
 
-[TODO Marv: write 3-5 sentences in your voice explaining WHY the protocol abstraction (not inheritance, not a framework like LangChain), WHY backend translation happens inside the inference module (not in the agent core), WHY env-driven backend selection (not runtime polymorphism). Likely themes: the central thesis depends on swappability being trivial; abstraction inside the inference module keeps the agent core provider-agnostic; env-driven selection means the eval harness can sweep across backends without code changes. This section gets quoted under interview drilling.]
+[REASONING PROMPTS — expand each bullet into 1-2 sentences in your own voice. Documentation depth: brief, honest, readable when future-you re-reads in 6 months. Not aiming for interview-defensible depth (artifact-first project, per 2026-08-24 scope revision).]
+
+- **WHY a protocol / structural interface, not inheritance from a base class**: any class with the right method shape works, no framework dependency, no forced hierarchy for something as thin as "call an LLM and get a response back."
+- **WHY not LangChain / an off-the-shelf agent framework abstraction**: LangChain carries assumptions about prompt templates, chain composition, and memory that fight the agent loop locked in ADR 0001; adopting it means either working against the framework or accepting design decisions that conflict with the project's own. Per the CV's "don't let AI own architecture" rule, the abstraction is ours to control.
+- **WHY backend translation lives INSIDE the inference module, not in the agent core**: the entire research thesis is comparing backends. Every mention of `openai`, `anthropic`, or `mlx` in the agent core would be a provider leak that undermines the thesis. Translation belongs at the boundary; the agent core sees a normalized shape.
+- **WHY env-driven backend selection, not runtime polymorphism or per-request routing**: Ronin's eval harness sweeps backends by spinning up multiple processes with different env vars — no code changes required per backend swap. Runtime polymorphism would add per-request overhead and per-request configuration state for capability the project doesn't need in v1.
+- **WHY the protocol has one core method (`invoke` — later split into `plan_task` + `interpret_results` in ADR 0011)**: minimum surface area = maximum swappability. Every additional required method is a translation cost for a new backend author. Keep it thin.
+- **WHY this ADR is v1-scoped and superseded for v2 by ADR 0011**: the v1 shape shipped adequately for the OpenAI-only Phase 1 target. Adding MLX + retry policy + warmup + registry integration in Phase 2 demanded a richer surface — hence 0011. Rather than mutate this ADR, 0011 stands as the v2 iteration and this one stays historical.
 
 ---
 
