@@ -1,9 +1,397 @@
 RONIN SYNC — MEETING AGENDA
-Date: 2026-06-20 | Owner: Marv
+Latest: 2026-07-29 | Owner: Marv | Deadline extended for research quality
 
 Format: WHAT · DECISION · IMPACT · WHY (my words)
 [L] = locked  [O] = open / discuss now  [V2] = deferred
 
+
+==================================================================
+======= 2026-07-29 MEETING — RESEARCH METHODOLOGY + PHASE 2 =======
+==================================================================
+
+CONTEXT: extending the deadline for a stronger research project. Speed
+over quality was rejected. Full quote to myself before this meeting:
+"we'll be extending the deadline for a stronger research project."
+Whatever comes out of this sync becomes the pace we work at.
+
+
+===== TIER A — RESEARCH METHODOLOGY (BIGGEST ITEMS) =====
+
+A0. THREE FAILURE MODES — align on these before anything else  [O]
+    We must be on the same page about what problems we're solving:
+
+    1. STRICT CONTAMINATION — same example literally in both sets.
+       Fix: n-gram overlap check (script). Trivial.
+    2. IN-DISTRIBUTION OVERFITTING — same authors, same instincts;
+       model pattern-matches to distribution shape without understanding.
+       Fix: different authors for train vs eval; diverse eval; embedding
+       similarity checks.
+    3. POOR GENERALIZATION — model can't reason about tool selection on
+       genuinely novel query shapes it wasn't trained on.
+       Fix: compositional held-out splits; explicit OOD eval tier;
+       adversarial subsets.
+
+    Why (me): our current docs address #1 explicitly, #2 implicitly,
+    and #3 NOT AT ALL. That is the load-bearing gap in our methodology.
+    Full playbook: docs/personal/training_data_and_eval_playbook.md
+
+
+A1. TRAINING DATA SOURCE  [L → discuss impl]
+    Decision (Marv): "im going with the independent external dataset
+    with review and scripting output adaptation for eval process."
+
+    What this means:
+    - Training data = a pre-existing external dataset (ToolBench,
+      API-Bank, or similar), NOT written by us
+    - Manual review = sample-check for quality, not full curation
+    - Output adaptation script = translation layer that converts what
+      the fine-tuned model emits (in the external dataset's format)
+      into BAYMAX's AgentResponse shape before your scorer sees it
+
+    Why this path (me): eliminates author bias (data written by people
+    who have never seen your eval); no LLM-mode-collapse concern (data
+    is human-authored/labeled at scale); output adapter reframes the
+    "wrong tool namespace" problem from a data problem to an engineering
+    problem.
+
+    Rejected path (LLM-generation): after review realised that "it is
+    very likely that an llm making 2000 scenarios will build very simple
+    similar scenarios" — LLMs mode-collapse under bulk generation.
+    Documented in Wang 2022 (Self-Instruct), Xu 2023 (Evol-Instruct),
+    GPT-4 tech report contamination section.
+
+    Discussion needed:
+    - Which external dataset? ToolBench (largest, general) vs API-Bank
+      (curated, narrower) vs multi-source. Your SFT experience decides.
+    - Adapter script ownership — my side (runtime) or yours (post-
+      processing before scorer)?
+    - Coverage gap enumeration — for BAYMAX-unique behaviors (refusal,
+      clarification, _contains, verification) that don't exist in
+      external data, we need a supplementary training set. Small
+      (~100-200 template-generated), narrowly scoped.
+
+    IMPORTANT ACKNOWLEDGMENT: expected outcome with this approach is
+    that the fine-tune UNDERPERFORMS gpt-4o-mini baseline by 5-15
+    points. Adapter is brittle at boundaries. This is a known cost of
+    the approach. Our research narrative must be prepared to own it —
+    see A6 below.
+
+    >>> PRE-MEETING NOTE (from advance chat with Ronin):
+    Leading dataset candidate is Salesforce/xlam-function-calling-60k
+    (https://huggingface.co/datasets/Salesforce/xLAM-function-calling-60k).
+    Assessment:
+    - Strengths: 60K examples (can subsample 2K-5K); Salesforce Research
+      quality > raw ToolBench (filtered/synthesized carefully); JSON
+      function-calling format similar to OpenAI style (easier for output
+      adapter); trained the xLAM models which posted competitive Berkeley
+      Function Calling Leaderboard numbers.
+    - Gaps: not personal-assistant domain-specific — calendar/notion/
+      gmail/clipboard aren't native; coverage of refusal/clarification/
+      verification behaviors unknown.
+    - Version pinning: xLAM datasets have had updates. Lock a specific
+      HF commit/revision for reproducibility.
+
+    RONIN PRE-TASK (15 min): sample 20-30 examples from xlam-function-
+    calling-60k. Check (a) presence of multi-tool scenarios, (b) any
+    refusal/clarification patterns, (c) argument-shape complexity.
+    Answer determines whether xLAM is a full solution or needs the
+    supplementary training set for BAYMAX-unique behaviors.
+
+
+A2. AUTHOR-SPLIT DISCIPLINE  [O]. -you dont need for this anymore
+    Rule I'm committing to and asking you to enforce with me:
+    - Marv does NOT look at your eval scenarios while doing anything
+      training-data-adjacent (including the output adapter)
+    - You do NOT look at the output adapter's translation table while
+      authoring eval scenarios
+
+    Why (me): my earlier framing quoted from convo: "the training data
+    set for qwen fine tuning must be an independent dataset and not
+    made by us to ensure fairness of study right? cause we have seen
+    and made the eval, so our data set is probably going to be biased
+    to the eval." Same principle applies now to the adapter — if the
+    adapter is designed with knowledge of specific eval scenarios,
+    it's silently biasing the outputs to pass those scenarios.
+
+    Practical: your eval scenarios stay in your head; my adapter stays
+    in mine. We compare NUMBERS at the end, not implementations along
+    the way.
+
+    >>> PRE-MEETING NOTE (from advance chat with Ronin):
+    Ronin asked: "since I make the eval scenarios, should I stay out of
+    the training pipeline entirely?"
+
+    Answer: NO — split is finer than in/out. The concern is not
+    "Ronin touches training" but "Ronin INFLUENCES the DISTRIBUTIONAL
+    SHAPE of training data based on knowledge of eval scenarios."
+
+    You CAN own (fully clean):
+    - SFT hyperparameters (learning rate, LoRA rank, epochs, etc.)
+    - Training loop / infrastructure / compute
+    - Checkpoint output + model registry integration (per B2, B3, B4)
+    - Quantization strategy for served model
+    - SELECTING the external dataset (per A1) — the dataset was
+      authored by third parties independent of BAYMAX eval
+
+    You should NOT own:
+    - Hand-authoring training scenarios (obvious eval-leakage)
+    - Designing the LLM generation prompt for training scenarios if we
+      go that route (your knowledge of eval would leak into the prompt)
+    - Cherry-picking / filtering training examples based on what's in
+      the eval
+
+    Practical implication:
+    - If external dataset (xLAM per A1) → you own selection, preprocessing,
+      SFT execution. Fully clean.
+    - If LLM-generated training data → I (Marv) write the generation
+      prompt blind to eval scenarios; you run the SFT on the output.
+      Slight asymmetry: I have to be disciplined about not looking at
+      your eval when writing the prompt.
+
+    Either way, you own almost all training mechanics. Author-split
+    protection is narrower than "stay out."
+
+
+A3. EVAL DESIGN GAPS — five things to fix  [O] youve read docs u understand this
+    Outside-critic pass on current 50-scenario eval flagged:
+
+    (i) VOLUME IS THIN
+        50 scenarios → ~10-15% noise on proportion metrics. A 5-point
+        score difference between backends could be pure noise. Need 200+
+        for defensible relative-quality claims; 500+ for small-difference
+        claims. Your roadmap targets 200 by Phase 3 — is that pullable
+        forward given extended timeline?
+
+    (ii) NO STATED DIVERSITY STRUCTURE
+         Are the 50 structurally different or 50 variants of ~5 patterns?
+         Ask: 20-min diversity audit. Classify each scenario by
+         (tool combo, intent type, phrasing style, error mode). If they
+         fall into <5 buckets, effective diversity is much lower than
+         50 suggests.
+
+    (iii) NO COMPOSITIONAL HELD-OUT SPLIT
+          Standard practice: train on tools A+B and A+C individually;
+          eval includes B+C combos never seen in training. Tests whether
+          model learned tool semantics vs memorized combinations.
+          Ask: can we structure this in v1 or is it a v2 concern?
+
+    (iv) NO OOD TIER
+         Rigorous eval design has an explicit out-of-distribution subset
+         (deliberately novel phrasings, adversarial edge cases,
+         unfamiliar tool combinations). Reported SEPARATELY from
+         in-distribution score.
+         Ask: reserve 10-20 of the target-200 scenarios as OOD; author
+         them separately from any training-data-adjacent workflow.
+
+    (v) NO PRE-REGISTERED FAILURE CRITERION
+        What result counts as "the fine-tune didn't work"? Agree BEFORE
+        running the experiment. Without this, any outcome gets
+        rationalized as success and reviewers see through it.
+
+    >>> PRE-MEETING NOTE (from advance chat with Ronin):
+    Ronin asked: "is a template with strong cases and categorisation
+    enough to generate the 150 new scenarios, or do I need to make
+    them myself?"
+
+    Answer: HYBRID. Template + LLM handles the bulk cheaply; you
+    hand-author the sharp cases where LLM is known to fail.
+
+    Recommended split for 150 new scenarios:
+    - ~100-120 IN-DISTRIBUTION + COMPOSITIONAL (Template + LLM + you
+      spot-review):
+      Template enumerates buckets explicitly (tool combos, intent
+      types, difficulty tiers) → LLM generates variations → guarantees
+      categorical coverage. Cheap.
+    - ~15-20 OOD tier (you hand-author):
+      Novel phrasings, unusual tool combos. LLMs generate "typical,"
+      not novel — this is where template+LLM systematically fails.
+    - ~10-15 ADVERSARIAL subset (you hand-author):
+      Genuinely tricky, ambiguous, contradictory inputs. LLMs cannot
+      generate real adversarial cases — they over-explain and hedge.
+    - ~5-10 REFUSAL / CLARIFICATION / VERIFICATION (you hand-author):
+      LLMs bias toward "helpful/succeed" and miss these categories
+      entirely. Also happens to be where the baseline is weakest
+      (refusal 21%, clarification 55%) → most valuable to test.
+
+    Total hand-author burden: ~30-45 scenarios = ~8-12 hours of your
+    focused work. Vs 30-50 hours doing all 150 by hand. Big saving
+    without sacrificing quality where it matters.
+
+    Post-generation, YOU also need to:
+    - Spot-review 10-20 random LLM-generated ones for
+      expected_behavior correctness (~1-2 hrs). LLM may set wrong
+      "expected" and train the eval to reward wrong things.
+    - Run diversity metrics to confirm bucket distribution landed
+      (~30 min script).
+    - Embedding-similarity check between generated and hand-authored
+      batches to catch accidental overlap.
+
+    Note on template design: I (Marv) should NOT write the template —
+    my knowledge of what the fine-tune will be trained on would leak
+    into the template's bucket definitions. You write the template,
+    generation prompt, and hand-author the sharp cases. I stay out of
+    eval authorship entirely. Symmetric protection matching A2.
+
+
+A4. STATISTICAL POWER / REPORTING  [O]
+    - Report mean ± CI on aggregate metrics, not point values
+    - Bootstrap CI over scenarios is standard (easy: numpy resample)
+    - Any comparison claim needs to survive the CI overlap check
+    - Once eval reaches 200+, statistical noise drops to ~6-8% (moderate
+      differences detectable)
+
+    Ask: agree on the CI reporting format now; add to BENCHMARKING.md.
+
+
+A5. VERIFICATION COST ACKNOWLEDGMENT  [O]
+    From the convo: "however to assure that the training data and eval
+    data isnt too similar would require human verification."
+
+    Reality check on options:
+    - n-gram overlap = free but only catches verbatim reuse
+    - Embedding cosine similarity = cheap, catches ~60-70% of paraphrase
+    - Full human pairwise review = 100K pairs for 50 eval × 2000 train =
+      140 hours; infeasible
+    - Sample-based statistical review = 1-2 hours; produces "estimated
+      overlap rate = X%" but not per-scenario guarantee
+
+    Chosen approach mitigates this: since training data is external and
+    we haven't seen it during eval authoring, semantic overlap risk is
+    much lower than same-author scenarios would be. Still needs a
+    sample-based check on the OUTPUT ADAPTER — did we accidentally
+    encode eval-specific patterns in the translation table?
+
+
+A6. COMPARISON FRAMING — pick the headline claim  [O]
+    Head-to-head "small fine-tune beats gpt-4o-mini" is nearly
+    impossible to defend cleanly. Small model = specialist trained on
+    narrow data; frontier = generalist trained on internet. Unfair
+    comparison.
+
+    Defensible alternatives (pick 1-2 for headline):
+    - A. Fine-tune vs its own base (Qwen 1.5B untuned vs Qwen 1.5B +
+         our fine-tune) — measures fine-tuning delta cleanly
+    - B. Fine-tune vs same-tier baseline (a published 1-2B tool-use
+         fine-tune, e.g., Phi-2 or TinyLlama on ToolBench) — like-for-
+         like at parameter tier
+    - C. Cost-normalized (gpt-4o-mini cost per scenario vs local Qwen
+         ≈ $0) — "achieves N% quality at 0% cost" story
+    - D. Transfer-learning ceiling (our chosen approach!) — characterize
+         how far external-data training gets on a domain-specific
+         contract. Publishable as ablation/negative-space study.
+
+    Recommendation from me: run A + D as parallel headline claims.
+    Both defensible. Neither requires the fine-tune to win.
+
+
+===== TIER B — PHASE 2 TECHNICAL DECISIONS (MY SIDE — LOCKED, FYI) =====
+
+B1. BACKEND INTERFACE v2 = template pattern per transport  [L] - he understnads
+    NOT one class per model — one class per TRANSPORT (OpenAI API,
+    MLX local, Anthropic API), configured with model_id at construction.
+    3-4 backend classes total, ever.
+    Full write-up will land in ADR 0011.
+
+B2. MODEL REGISTRY = Option A manifest file  [L] -solved 
+    Location: models/models.json (index) + models/<model_id>/ folders
+    for v1. HF Hub deferred to v2.
+    Full write-up will land in ADR 0012.
+
+    ACTION FOR YOU: your SFT pipeline needs to write model artifacts
+    to models/qwen-1.5b-baymax-v1/ (v2, v3, ... as retrains happen —
+    IMMUTABLE, never overwrite) and APPEND to models/models.json.
+    Per my convo: "he uses AI, I'll have him make the code assist add
+    it to the registry for each new training." Suggested tooling: have
+    your AI assist emit both the checkpoint AND a manifest patch.
+
+B3. MODEL IDS = immutable + monotonic increment  [L]. he has set decision
+    v1 → v2 → v3. Never overwrite. Any prior eval result labeled v1
+    stays reproducible forever.
+
+B4. REGISTRY MANIFEST FIELDS  [L] - done 
+    Required (all): id, base, adapter_path, trained_at,
+                    training_config_hash
+    Optional: notes
+    NOT in registry: benchmark_score (lives in results/ as sole
+                     source of truth)
+
+    ACTION FOR YOU: your training pipeline must emit
+    training_config_hash per run — hash of hyperparameters + data.
+    If it doesn't already, add this or the first model I try to
+    register fails validation.
+
+B5. BACKEND CAPABILITY DECLARATION  [O] - talked about just now, this is the json error stuff
+    Do backends advertise {streaming, tool_call_style, max_context,
+    cost_model} via a .capabilities() method, or is the interface
+    assumed identical across backends?
+
+    Reframe for research fairness: enforcing INTERFACE UNIFORMITY
+    (backends absorb their own capability gaps internally) is the more
+    scientifically rigorous stance. It makes eval-score deltas
+    attributable to model, not to divergent agent paths. This is what
+    the chosen output-adaptation strategy already implies at the
+    output layer — capability declaration would be its input-side
+    twin.
+
+B6. IN-REQUEST RETRY POLICY = exponential backoff, N attempts  [L] - phase 3 deffered
+    Backend retries OpenAI 429/500 with exponential backoff up to N
+    attempts before raising. Simpler than cross-request resume;
+    doesn't need state persistence. 
+
+B7. WARMUP = backend-only, blocks /health  [L] - decided
+    On startup: load model weights + run a dummy "warm up MLX"
+    scenario prompt that exercises tool-call generation. Health
+    endpoint returns 503 until warm. Dummy prompt matters: MLX may
+    compile separate compute graphs for structured-output paths, so
+    warm prompt must force at least one tool call.
+
+
+===== TIER C — OPEN QUESTIONS FOR YOU =====
+
+C1. WHICH EXTERNAL DATASET? (see A1)
+    ToolBench / API-Bank / Gorilla / hybrid — your SFT experience.
+
+C2. ADAPTER SCRIPT OWNERSHIP (see A1)
+    Runtime side (mine) or scorer-preprocessing side (yours)?
+
+C3. COVERAGE GAP ENUMERATION (see A1)
+    For BAYMAX-unique behaviors (refusal, clarification, verification,
+    _contains) — which tools in BAYMAX have NO analog in your chosen
+    external dataset? Result → supplementary training set scope.
+
+C4. DIVERSITY AUDIT (see A3.ii)
+    20-min task: classify the current 50 scenarios by
+    (tool combo, intent type, phrasing style, error mode).
+    Report bucket counts.
+
+C5. OOD TIER PLAN (see A3.iv)
+    Reserve 10-20 of the target-200 for OOD. Author separately.
+
+C6. COMPOSITIONAL SPLIT (see A3.iii)
+    Feasible in v1 or defer to v2? Depends on how tool combos are
+    currently distributed.
+
+C7. EVAL VOLUME TIMELINE (see A3.i)
+    Given extended deadline, can 200 land sooner than Phase 3?
+
+C8. PRE-REGISTERED FAILURE CRITERION (see A3.v)
+    What result counts as "fine-tune didn't work"? Numbers or
+    behavior thresholds — pick either or both.
+
+C9. AUTHOR-SPLIT COMMITMENT (see A2)
+    Are you willing to commit to not looking at the adapter's
+    translation table while authoring eval scenarios? I commit to
+    not looking at your eval scenarios during any training-data-
+    adjacent work.
+
+C10. TRAINING PIPELINE — training_config_hash EMISSION (see B4)
+     Does your pipeline already emit this? If not, low-cost addition
+     now vs blocked-later.
+
+
+==================================================================
+======= 2026-06-20 MEETING (HISTORICAL — RESOLVED) ================
+==================================================================
 
 --- EXTRA : WE ARE REMOVING AUDIO, INPUT AS STR ONLY FOR NOW, OPEN FOR EXTENTION LATER
 
@@ -18,9 +406,9 @@ Format: WHAT · DECISION · IMPACT · WHY (my words)
    need a real time budget when network APIs are in play. Per-tool seems right
    since some tools are fast (clipboard) and some slow (gmail send).
    Decision: agree per-tool timeouts in v2, deferred for now.
- ronin response - 
+ ronin response -
    actual time should be taken into consideration
-   separate retry limits 
+   separate retry limits
    buffer for excess tool call ~5
 
 1. TRACE FORMAT  [O]
@@ -36,9 +424,9 @@ Format: WHAT · DECISION · IMPACT · WHY (my words)
    Why (me): "ability of the model to identify intent can be a measurable metric
    going forward — if the model raises that error, we capture ambiguity-perception
    across baselines." Precision/recall vs scenario.difficulty == "ambiguous".
- ronin response - 
-   error context field 
-   
+ ronin response -
+   error context field
+
 
 ===== TIER 2 — LOCKED, FYI =====
 
@@ -77,10 +465,12 @@ Format: WHAT · DECISION · IMPACT · WHY (my words)
    from user request and turn it into substantial data — a further metric to
    quantify if baseline or fine-tuned is comparable to GPT or Claude in task
    understanding."
- - we'll have a seperate file that will evaluate how the agent builds the task 
+ - we'll have a seperate file that will evaluate how the agent builds the task
 
 8. STATE STORE = SQLite v1, Redis at v3 if multi-process  [L]
    Why (me): "lets go for sqlite to catch up to late roadmap, Redis when v3."
+   UPDATE 2026-06-23: DOWNGRADED to v2 target. No SQLite code shipped in
+   Phase 1. v1 runs in-memory only. See ADR 0007 + DEFERRED.md.
 
 9. AUTH = env vars  [L]
    Impact: telemetry redacts auth*/token*/key*/password*/secret*/authorization*
