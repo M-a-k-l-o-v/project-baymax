@@ -43,6 +43,8 @@ def _now_iso() -> str:
 class CostAccumulator:
     """Per-trace cost rollup."""
 
+    # ill likely make some changes to this in phase two on how tool
+    # cost calculation is done, but for now this is it.
     input_tokens: int = 0
     output_tokens: int = 0
     tool_call_count: int = 0
