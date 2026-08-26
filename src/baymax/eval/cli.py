@@ -11,6 +11,12 @@ from typing import Any, Sequence
 from uuid import uuid4
 
 from baymax.eval.agent_runner import run_agent_scenarios
+from baymax.eval.lora_runner import (
+    LocalLoraAgent,
+    LocalLoraConfig,
+    LocalLoraDependencyError,
+    run_lora_scenarios,
+)
 from baymax.eval.runner import ScenarioRunResult, ScriptedAgent, run_scenarios
 from baymax.eval.scenario_loader import load_scenarios
 from baymax.eval.scorer import AgentResponse
@@ -36,6 +42,40 @@ def main(argv: Sequence[str] | None = None) -> int:
                 output_path=args.output,
                 model=args.model,
             )
+        )
+        return 0
+
+    if args.command == "run-agent-lora":
+        _run_agent_local(
+            scenarios_dir=args.scenarios,
+            output_path=args.output,
+            base_model=args.base_model,
+            adapter_path=args.adapter,
+            max_new_tokens=args.max_new_tokens,
+            temperature=args.temperature,
+            trust_remote_code=args.trust_remote_code,
+            allow_cpu=args.allow_cpu,
+            limit=args.limit,
+            scenario_ids=args.scenario_id,
+            runner="agent_lora",
+            backend_name=f"local-lora:{args.base_model}",
+        )
+        return 0
+
+    if args.command == "run-agent-local":
+        _run_agent_local(
+            scenarios_dir=args.scenarios,
+            output_path=args.output,
+            base_model=args.base_model,
+            adapter_path=None,
+            max_new_tokens=args.max_new_tokens,
+            temperature=args.temperature,
+            trust_remote_code=args.trust_remote_code,
+            allow_cpu=args.allow_cpu,
+            limit=args.limit,
+            scenario_ids=args.scenario_id,
+            runner="agent_local",
+            backend_name=f"local-base:{args.base_model}",
         )
         return 0
 
@@ -90,6 +130,124 @@ def _build_parser() -> argparse.ArgumentParser:
         "--model",
         default="gpt-4o-mini",
         help="OpenAI model name to use for the naive agent baseline",
+    )
+
+    agent_lora_parser = subparsers.add_parser(
+        "run-agent-lora",
+        help="run scenarios with a local Qwen LoRA adapter",
+    )
+    agent_lora_parser.add_argument(
+        "--scenarios",
+        type=Path,
+        required=True,
+        help="directory containing scenario JSON files",
+    )
+    agent_lora_parser.add_argument(
+        "--output",
+        type=Path,
+        required=True,
+        help="path to write eval result JSON",
+    )
+    agent_lora_parser.add_argument(
+        "--adapter",
+        type=Path,
+        required=True,
+        help="LoRA adapter directory, e.g. models/qwen.../adapter",
+    )
+    agent_lora_parser.add_argument(
+        "--base-model",
+        default="Qwen/Qwen2.5-1.5B-Instruct",
+        help="base model ID used with the LoRA adapter",
+    )
+    agent_lora_parser.add_argument(
+        "--max-new-tokens",
+        type=int,
+        default=256,
+        help="maximum generated tokens per scenario",
+    )
+    agent_lora_parser.add_argument(
+        "--temperature",
+        type=float,
+        default=0.0,
+        help="generation temperature; 0 means deterministic greedy decoding",
+    )
+    agent_lora_parser.add_argument(
+        "--trust-remote-code",
+        action="store_true",
+        help="pass trust_remote_code=True when loading model/tokenizer",
+    )
+    agent_lora_parser.add_argument(
+        "--allow-cpu",
+        action="store_true",
+        help="allow CPU inference when CUDA is unavailable",
+    )
+    agent_lora_parser.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help="optional scenario limit for quick local checks",
+    )
+    agent_lora_parser.add_argument(
+        "--scenario-id",
+        action="append",
+        default=[],
+        help="scenario ID to run; repeat for multiple IDs",
+    )
+
+    agent_local_parser = subparsers.add_parser(
+        "run-agent-local",
+        help="run scenarios with a local base model without a LoRA adapter",
+    )
+    agent_local_parser.add_argument(
+        "--scenarios",
+        type=Path,
+        required=True,
+        help="directory containing scenario JSON files",
+    )
+    agent_local_parser.add_argument(
+        "--output",
+        type=Path,
+        required=True,
+        help="path to write eval result JSON",
+    )
+    agent_local_parser.add_argument(
+        "--base-model",
+        default="Qwen/Qwen2.5-1.5B-Instruct",
+        help="base model ID to evaluate",
+    )
+    agent_local_parser.add_argument(
+        "--max-new-tokens",
+        type=int,
+        default=256,
+        help="maximum generated tokens per scenario",
+    )
+    agent_local_parser.add_argument(
+        "--temperature",
+        type=float,
+        default=0.0,
+        help="generation temperature; 0 means deterministic greedy decoding",
+    )
+    agent_local_parser.add_argument(
+        "--trust-remote-code",
+        action="store_true",
+        help="pass trust_remote_code=True when loading model/tokenizer",
+    )
+    agent_local_parser.add_argument(
+        "--allow-cpu",
+        action="store_true",
+        help="allow CPU inference when CUDA is unavailable",
+    )
+    agent_local_parser.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help="optional scenario limit for quick local checks",
+    )
+    agent_local_parser.add_argument(
+        "--scenario-id",
+        action="append",
+        default=[],
+        help="scenario ID to run; repeat for multiple IDs",
     )
 
     return parser
@@ -150,6 +308,65 @@ async def _run_agent_openai(
     )
 
 
+def _run_agent_local(
+    *,
+    scenarios_dir: Path,
+    output_path: Path,
+    base_model: str,
+    adapter_path: Path | None,
+    max_new_tokens: int,
+    temperature: float,
+    trust_remote_code: bool,
+    allow_cpu: bool,
+    limit: int | None,
+    scenario_ids: list[str],
+    runner: str,
+    backend_name: str,
+) -> None:
+    run_id = str(uuid4())
+    scenarios = load_scenarios(scenarios_dir)
+    if scenario_ids:
+        selected_ids = set(scenario_ids)
+        scenarios = [scenario for scenario in scenarios if scenario.id in selected_ids]
+        missing_ids = sorted(selected_ids - {scenario.id for scenario in scenarios})
+        if missing_ids:
+            raise SystemExit(f"error: unknown scenario IDs: {', '.join(missing_ids)}")
+    if limit is not None:
+        scenarios = scenarios[:limit]
+
+    try:
+        agent = LocalLoraAgent(
+            LocalLoraConfig(
+                base_model=base_model,
+                adapter_path=adapter_path,
+                max_new_tokens=max_new_tokens,
+                temperature=temperature,
+                trust_remote_code=trust_remote_code,
+                allow_cpu=allow_cpu,
+            )
+        )
+    except (LocalLoraDependencyError, FileNotFoundError, RuntimeError) as error:
+        raise SystemExit(f"error: {error}") from error
+
+    results = run_lora_scenarios(
+        scenarios=scenarios,
+        agent=agent,
+        run_id=run_id,
+    )
+    output = build_result_payload(
+        results=results,
+        backend_name=backend_name,
+        run_id=run_id,
+        runner=runner,
+    )
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(
+        json.dumps(output, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+
+
 def load_scripted_responses(path: Path) -> dict[str, AgentResponse]:
     with path.open(encoding="utf-8") as responses_file:
         raw_responses = json.load(responses_file)
@@ -184,6 +401,12 @@ def build_result_payload(
                 "task_id": result.task_id,
                 "latency_ms": result.latency_ms,
                 "cost_usd": result.cost_usd,
+                "raw_model_output": result.raw_model_output,
+                "agent_response": (
+                    result.agent_response.model_dump(mode="json")
+                    if result.agent_response is not None
+                    else None
+                ),
                 "score": result.score.model_dump(mode="json"),
                 "tool_results": [
                     tool_result.model_dump(mode="json") for tool_result in result.tool_results

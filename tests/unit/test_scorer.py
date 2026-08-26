@@ -163,6 +163,7 @@ def test_scores_partial_argument_accuracy() -> None:
 
     assert score.task_success is False
     assert score.argument_accuracy == 0.5
+    assert score.failure_reasons == ["wrong_argument"]
 
 
 def test_scores_multi_step_argument_accuracy_per_ordered_call() -> None:

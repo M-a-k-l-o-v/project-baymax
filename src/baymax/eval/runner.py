@@ -27,6 +27,8 @@ class ScenarioRunResult(BaseModel):
     task_id: str | None = None
     latency_ms: int
     cost_usd: float = 0.0
+    raw_model_output: str | None = None
+    agent_response: AgentResponse | None = None
     score: ScenarioScore
     tool_results: list[FakeToolResult]
     final_state: dict[str, Any]
@@ -67,6 +69,7 @@ def run_scenario(
         scenario_id=scenario.id,
         task_id=f"{run_id}.{scenario.id}.0" if run_id else None,
         latency_ms=latency_ms,
+        agent_response=response,
         score=score,
         tool_results=execution.tool_results,
         final_state=execution.final_state,

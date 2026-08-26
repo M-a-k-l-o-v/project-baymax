@@ -1,0 +1,56 @@
+{
+    "config_name": "qwen2_5_1_5b_lora_v1",
+    "config_hash": "5266ea8c2bab78d085bedccc8e444837cc608eafd9a2995b4ab9d4e6921974fb",
+    "base_model": "Qwen/Qwen2.5-1.5B-Instruct",
+    "data": {
+        "dataset_id": "Salesforce/xLAM-function-calling-60k",
+        "revision": "26d14ebfe18b1f7b524bd39b404b50af5dc97866",
+        "format_version": "qwen-chat-messages-v1",
+        "train_path": "data\\sft\\v1\\xlam\\train.jsonl",
+        "validation_path": "data\\sft\\v1\\xlam\\validation.jsonl",
+        "test_path": "data\\sft\\v1\\xlam\\test.jsonl",
+        "split_manifest_path": "data\\sft\\v1\\xlam\\split-manifest.json",
+        "validation_report_path": "data\\sft\\v1\\xlam\\validation-report.json",
+        "eval_scenarios_path": "scenarios\\v1"
+    },
+    "lora": {
+        "r": 8,
+        "lora_alpha": 16,
+        "target_modules": ["q_proj", "v_proj"],
+        "lora_dropout": 0.05,
+        "bias": "none",
+        "task_type": "CAUSAL_LM"
+    },
+    "training": {
+        "learning_rate": 0.0002,
+        "num_train_epochs": 1.0,
+        "per_device_train_batch_size": 2,
+        "per_device_eval_batch_size": 2,
+        "gradient_accumulation_steps": 8,
+        "max_sequence_length": 2048,
+        "warmup_ratio": 0.03,
+        "weight_decay": 0.0,
+        "lr_scheduler_type": "cosine",
+        "max_grad_norm": 1.0,
+        "gradient_checkpointing": true,
+        "bf16": true,
+        "fp16": false,
+        "logging_steps": 10,
+        "eval_steps": 250,
+        "save_steps": 250,
+        "save_total_limit": 2
+    },
+    "runtime": {
+        "seed": 1,
+        "run_name": "qwen2_5_1_5b_lora_v1",
+        "output_dir": "models\\qwen2_5_1_5b_lora_v1",
+        "model_registry_path": "models\\models.json",
+        "expected_adapter_path": "models\\qwen2_5_1_5b_lora_v1\\adapter",
+        "report_to": []
+    },
+    "output_adapter": {
+        "native_output_format": "xlam_function_calling",
+        "baymax_boundary": "AgentResponse",
+        "adapter_owner": "Marv"
+    }
+}
