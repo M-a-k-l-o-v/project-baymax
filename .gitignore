@@ -70,10 +70,11 @@ build_tadashi_word_doc.py
 docs/personal/
 docs/AI_HANDOFF.md
 docs/FUTURE_FIXES.md
-docs/PHASE2_ARCHITECTURE.md
-docs/training_data_and_eval_playbook.pdf
-future_work/tadashi_2_motion_priors.md
-future_work/masters_program_targets.md
+# Only the pre-existing public briefs stay tracked; everything else in future_work/ is private.
+future_work/*
+!future_work/README.md
+!future_work/beta_project.md
+!future_work/gamma_project.md
 
 # Local markdown / Quarto preview artifacts (any depth)
 *.html
