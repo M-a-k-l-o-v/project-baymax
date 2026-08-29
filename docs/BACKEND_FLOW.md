@@ -98,7 +98,7 @@ flowchart TD
 
     REG_READ[Load models.json<br/>fetch model_id entry]
     REG_VALID{Entry valid?<br/>required fields present?}
-    REG_FAIL[Raise ModelNotFound / SchemaError<br/>uvicorn exits]
+    REG_FAIL[Raise ModelNotFound / IncompleteRegistryEntry<br/>uvicorn exits]
 
     BACKEND_INIT[Backend __init__<br/>fetches OPENAI_API_KEY or MLX_MODEL_PATH<br/>raises loud on missing]
     BACKEND_FAIL{Init succeeded?}
@@ -210,6 +210,10 @@ sequenceDiagram
 - Validator runs on both the initial TaskFile and each ToolCall step before dispatch
 - Agent uses meta-tools (`request_clarification`, `refuse_request`) as normal tool calls — dispatched but with no side effects, sets response_type accordingly
 
+**Two distinct retry loops** (do not confuse):
+- **Backend retry** (§4 below): inside `_call_llm`, retries transient LLM-API failures (HTTP 408/429/500-504, connection errors). Hardcoded N=3 per ADR 0011 §D. Never retries MLX.
+- **Tool-call retry (ReAct-style recovery)**: inside the agent loop, retries individual TOOL dispatches that fail per `AgentConfig.max_retries_per_step` (ADR 0001). Runs at a higher layer than backend retry — a single tool-call attempt may internally consume up to N=3 backend attempts, so worst-case a `max_retries_per_step=2` scenario can produce 2×3=6 LLM calls if planning also gets retried.
+
 ---
 
 ## 4. Retry loop internals (inside `_call_llm`)
@@ -219,7 +223,7 @@ The retry logic that lives on the base class per A4, implementing D1-D5.
 ```mermaid
 flowchart TD
     ENTER[_call_llm called]
-    INIT[attempt = 1<br/>max_attempts = env BAYMAX_RETRY_MAX_ATTEMPTS or 3]
+    INIT[attempt = 1<br/>max_attempts = 3 hardcoded]
     LOG_ATTEMPT[Log 'backend_attempt' event<br/>attempt=N is_warmup=false]
 
     CALL[Execute HTTP or MLX call]
@@ -240,7 +244,7 @@ flowchart TD
 
     EXHAUSTED[All attempts exhausted]
     LOG_FINAL_FAIL[Log 'backend_call_complete' aggregate<br/>total_attempts=N final_status=failed<br/>with full attempt history]
-    RAISE_BE[Raise BackendError<br/>kind=retry_exhausted<br/>underlying=orig_exception<br/>attempts_history=list of N attempts]
+    RAISE_BE[Raise BackendError<br/>kind=retry_exhausted OR non_retriable<br/>underlying=orig_exception<br/>attempts_history=list of attempts]
 
     ENTER --> INIT
     INIT --> LOG_ATTEMPT
@@ -273,54 +277,66 @@ flowchart TD
     class SUCCESS,RETURN success
 ```
 
-**Backoff formula** (per D2):
+**Backoff formula** (per D2, `attempt` is 1-indexed and identifies the JUST-FAILED attempt):
 ```
-delay = base_delay * (factor ** attempt_number)
-      = 1s * (2 ** attempt)   # 1s, 2s, 4s
+delay = base_delay * (factor ** (attempt - 1))
+      = 1s * (2 ** (attempt - 1))
+      → 1s wait before retry 2, 2s wait before retry 3, 4s wait before retry 4
 delay_with_jitter = delay * uniform(0.75, 1.25)
 ```
 
-**Retry sensitivity sweep** (per D1 lock):
-Eval infrastructure runs with `BAYMAX_RETRY_MAX_ATTEMPTS ∈ {1, 2, 3, 5}` and reports failure rate per N. Measures whether retries are a load-bearing variable in the eval or extraneous noise.
+**N = 3 hardcoded** (2026-08-24 revision): earlier design had N configurable via env var + eval sweep at multiple values; trimmed as publication-review overhead per stepping-stone reframe.
 
 ---
 
-## 5. Error surfacing → AgentResponse
+## 5. Error surfacing → HTTP 500
 
-How a `BackendError` (from retry exhaustion or non-retriable error) becomes an `AgentResponse` for the client.
+How a `BackendError` (from retry exhaustion or non-retriable error) reaches the client. **Revised 2026-08-26**: prior version had this returning HTTP 200 with `error_type` on `AgentResponse` — that broke `AgentResponse`'s boundary contract with Ronin's scorer. Corrected below.
 
 ```mermaid
 flowchart LR
     subgraph BACKEND
-        BE[Backend raises BackendError<br/>kind=... underlying=... attempts=...]
+        BE[Backend raises BackendError<br/>kind=retry_exhausted OR non_retriable<br/>underlying=... attempts=...]
     end
 
     subgraph AGENT
-        CATCH[Agent catches BackendError]
-        MAP[Map to ErrorType.BACKEND_ERROR]
-        BUILD[Build TaskFile.completion_status = failed<br/>set error_type = BACKEND_ERROR<br/>attach underlying info to action_log]
-        LOG[Log 'agent_error' telemetry<br/>with full underlying + attempt history]
-        RESPONSE[task.to_agent_response<br/>response_type = ERROR]
+        BUBBLE[Agent does NOT catch<br/>internal TaskFile.completion_status=FAILED<br/>TaskFile.error_type=BACKEND_ERROR<br/>full attempts logged to action_log for forensics]
+    end
+
+    subgraph FASTAPI
+        HANDLER[app.exception_handler BackendError<br/>registered in lifespan]
+        BUILD500[Build 500 body:<br/>error backend_error<br/>kind retry_exhausted or non_retriable<br/>backend provider<br/>message brief<br/>attempts count]
     end
 
     subgraph CLIENT
-        RESP[HTTP 200 with AgentResponse<br/>error_type=BACKEND_ERROR<br/>task_done=false]
+        RESP[HTTP 500 + JSON error body<br/>AgentResponse boundary intact / not returned]
     end
 
-    BE --> CATCH
-    CATCH --> MAP
-    MAP --> BUILD
-    BUILD --> LOG
-    LOG --> RESPONSE
-    RESPONSE --> RESP
+    BE --> BUBBLE
+    BUBBLE --> HANDLER
+    HANDLER --> BUILD500
+    BUILD500 --> RESP
 
     classDef fail fill:#ffcdd2,stroke:#c62828,color:#000
-    class BE,BUILD fail
+    class BE,BUBBLE fail
 ```
 
-**Key semantic** (per E2): backend failures become a distinct `ErrorType.BACKEND_ERROR` in the ErrorType enum. Scorer can bucket these separately from agent-logic failures (validator errors, ambiguous requests). This preserves the distinction between "the model failed to respond" and "the plan the model produced was invalid."
+**Key semantic** (per E2, revised): backend failure is infrastructure-layer, not an agent decision. HTTP status codes exist for exactly this distinction:
+- **200 + AgentResponse** = agent made a decision (execute, refuse, clarify)
+- **500 + error body** = infrastructure failed (backend down, retries exhausted, warmup incomplete)
 
-**HTTP status**: still 200 on the wire. The failure is captured semantically in `AgentResponse.error_type`. Only true HTTP infrastructure errors (server down, invalid JSON in) return non-200.
+`AgentResponse` boundary shape stays `{tool_calls, message}` unchanged — Ronin's scorer contract intact.
+
+**500 body shape**:
+```json
+{"error": "backend_error", "kind": "retry_exhausted", "backend": "openai",
+ "message": "openai backend failed after 3 attempt(s): http_429",
+ "attempts": 3}
+```
+
+No stack traces or underlying reprs in the body — those live in the trace file per ADR 0010 redaction discipline.
+
+**Ronin coordination**: eval runner needs try/except around the httpx call and a "backend_error" bucket in scoring categorization. Flag in next sync.
 
 ---
 

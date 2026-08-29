@@ -147,10 +147,20 @@ Env-var summary:
 
 ### 6. Error surfacing
 
-- **Exception type**: `BackendError` in `src/baymax/core/exceptions.py`. Wraps underlying exception always (even non-retry failures). Has `kind`, `underlying`, `attempts_history` fields.
-- **Agent mapping**: agent catches `BackendError` → sets `AgentResponse.error_type = ErrorType.BACKEND_ERROR` (new enum value added). Preserves full underlying + attempt history in the action log for forensic value.
-- **HTTP status**: `/invoke` still returns 200 with the `AgentResponse` body; failure is semantic, not HTTP-layer.
+- **Exception type**: `BackendError` in `src/baymax/core/exceptions.py`. Wraps underlying exception always (even non-retry failures). Has `kind`, `underlying`, `attempts_history`, `backend` fields.
+- **`kind` values** (extensible enum-of-strings, not exhaustive):
+  - `"retry_exhausted"` — retriable error hit `max_attempts` without success
+  - `"non_retriable"` — first-attempt error was classified as non-retriable (HTTP 400/401/403/404/422, or any MLX error)
+  - `"unreachable"` — defensive guard for the retry loop exiting without return/raise (should never fire in practice)
+- **Agent-side internal state**: on `BackendError`, agent sets `TaskFile.completion_status = FAILED` and `TaskFile.error_type = ErrorType.BACKEND_ERROR` (new enum value added to `contracts.py`). Full underlying + attempt history retained in the action log for forensic value. `AgentResponse` boundary shape is NOT modified — remains `{tool_calls, message}` per its scorer contract.
+- **HTTP status (revised 2026-08-26)**: `/invoke` returns **HTTP 500** with a JSON error body when `BackendError` propagates. Rationale: backend failure is infrastructure-layer, not an agent decision. Clean separation:
+  - `200 + AgentResponse` = agent made a decision (execute, refuse, clarify)
+  - `5xx + error body` = infrastructure failed (backend down, retries exhausted, warmup incomplete)
+  - Aligns with HTTP semantics; keeps `AgentResponse` boundary contract intact for Ronin's scorer.
+- **500 body shape**: `{"error": "backend_error", "kind": <retry_exhausted|non_retriable>, "backend": <provider>, "message": <str>, "attempts": <int>}`. No stack traces, no `underlying` repr in the body — those go to the trace file only, per redaction discipline (ADR 0010).
+- **FastAPI wiring**: `app.exception_handler(BackendError)` registered in `api.py`'s lifespan. Handler builds the 500 body from `exc.kind` / `exc.backend` / `len(exc.attempts_history)`. Agent code itself does NOT catch `BackendError` — lets it bubble up.
 - **Retry history in trace**: yes, full per-attempt events emitted per §5 propagate into the trace stream.
+- **Ronin coordination note**: eval runner needs a try/except around the httpx call and a "backend_error" bucket in categorization. Small change on his side; flag in next sync.
 
 ### 7. Registry coupling
 
