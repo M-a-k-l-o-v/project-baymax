@@ -1,0 +1,18 @@
+{
+  "id": "warmup_calendar_create_001",
+  "category": "warmup",
+  "difficulty": "explicit",
+  "description": "Backend warmup scenario per ADR 0011 §C1. Deliberately trivial and tool-call-emitting so MLX's structured-output compute graphs get compiled during startup. Never included in real eval runs (agent tags telemetry with is_warmup=true; scorer filters).",
+  "user_input": "Add a 30-minute event called 'warmup ping' tomorrow at 10am.",
+  "current_time": "2026-01-01T09:00:00Z",
+  "available_tools": ["calendar.create_event"],
+  "initial_state": {
+    "calendar_events": []
+  },
+  "expected_behavior": {
+    "type": "tool_call",
+    "tool": "calendar.create_event"
+  },
+  "success_criteria": ["tool_called"],
+  "tags": ["warmup", "internal_only"]
+}

@@ -1,0 +1,15 @@
+{
+  "$schema_note": "See ADR 0012 §2 for the field spec. Required: id, base, adapter_path, trained_at, config_hash. Ronin appends new fine-tune entries per SFT run; entries are IMMUTABLE (per RONIN_SYNC B3) — retraining creates a new id (v1 → v2 → v3), never rewrites an existing entry. Marv's backend reads this at construction time.",
+  "models": [
+    {
+      "id": "gpt-4o-mini",
+      "base": "gpt-4o-mini",
+      "adapter_path": null,
+      "trained_at": null,
+      "config_hash": null,
+      "checkpoint_format": "hosted-openai",
+      "mlx_compatible": false,
+      "mlx_artifact_path": null
+    }
+  ]
+}

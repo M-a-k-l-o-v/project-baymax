@@ -39,6 +39,9 @@ pytestmark = pytest.mark.skipif(
 class _FakeBackend(InferenceBackend):
     plan_response: PlanResult
     interpret_response: InterpretResult = InterpretResult(response_text="ok done")
+    # NOTE: @dataclass overrides InferenceBackend.__init__, so declare model_id
+    # as a field with default so it's set on instances.
+    model_id: str = "test-fake"
 
     async def plan_task(self, request: PlanRequest) -> PlanResult:
         return self.plan_response
@@ -48,7 +51,11 @@ class _FakeBackend(InferenceBackend):
 
 
 def _build_test_app(plan_response: PlanResult) -> FastAPI:
-    """Construct an app with a fake backend pre-installed (bypassing lifespan)."""
+    """Construct an app with a fake backend pre-installed (bypassing lifespan).
+
+    Sets warmed_up=True by default so /health returns 200 for the test paths that
+    don't specifically exercise the warmup gate.
+    """
     import io
 
     # We construct the app WITHOUT lifespan so we can inject app state directly.
@@ -58,6 +65,8 @@ def _build_test_app(plan_response: PlanResult) -> FastAPI:
         inference=_FakeBackend(plan_response=plan_response),
         telemetry=TelemetryLogger(output_stream=io.StringIO()),
     )
+    # Simulate a completed warmup — tests here aren't exercising the /health gate.
+    state.warmed_up = True
     app.state.baymax = state
 
     # Re-register the endpoints against this app
@@ -69,6 +78,7 @@ def _build_test_app(plan_response: PlanResult) -> FastAPI:
 
 
 def test_health_endpoint_returns_ok():
+    """Post-warmup: /health returns 200 with the new body shape per ADR 0011 §C2."""
     app = _build_test_app(
         plan_response=PlanResult(
             plan=[],
@@ -83,8 +93,10 @@ def test_health_endpoint_returns_ok():
         response = client.get("/health")
         assert response.status_code == 200
         body = response.json()
-        assert body["status"] == "ok"
-        assert body["backend"] == "_FakeBackend"
+        assert body["ready"] is True
+        # New body shape per ADR 0011 §C2: {ready, backend, model_id}
+        assert body["backend"] == "unknown"  # _FakeBackend inherits default provider
+        assert body["model_id"] == "test-fake"
 
 
 def test_invoke_clarification_emits_empty_tool_calls():

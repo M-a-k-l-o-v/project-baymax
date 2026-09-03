@@ -291,7 +291,7 @@ async def _run_agent_openai(
     scenarios = load_scenarios(scenarios_dir)
     results = await run_agent_scenarios(
         scenarios=scenarios,
-        inference=OpenAIBackend(model=model),
+        inference=OpenAIBackend(model_id=model),
         run_id=run_id,
     )
     output = build_result_payload(

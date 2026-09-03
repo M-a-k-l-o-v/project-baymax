@@ -132,6 +132,8 @@ class ErrorType(str, Enum):
     TOOL_EXECUTION_ERROR = "tool_execution"  # adapter returned success=False
     TOOL_TIMEOUT = "tool_timeout"  # adapter exceeded timeout
     INFERENCE_TIMEOUT = "inference_timeout"  # LLM API exceeded timeout
+    # Backend failure (retry exhausted OR non-retriable) — see ADR 0011 §E2.
+    BACKEND_ERROR = "backend_error"
 
     # ----- Model-self-reported signals (measurable capabilities) -----
     AMBIGUOUS_REQUEST = "ambiguous_request"  # model recognised intent ambiguity
